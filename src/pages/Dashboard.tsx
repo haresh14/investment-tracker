@@ -1,6 +1,12 @@
 import type { FC } from 'react';
+import { testSupabaseConnection, testDatabaseOperations } from '../lib/supabase-test';
 
 const Dashboard: FC = () => {
+  const handleTestConnection = async () => {
+    await testSupabaseConnection();
+    await testDatabaseOperations();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -44,7 +50,15 @@ const Dashboard: FC = () => {
         <div className="card-body">
           <div className="flex justify-between items-center mb-4">
             <h2 className="card-title">Your SIPs</h2>
-            <button className="btn btn-primary">Add SIP</button>
+            <div className="flex gap-2">
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={handleTestConnection}
+              >
+                Test DB
+              </button>
+              <button className="btn btn-primary">Add SIP</button>
+            </div>
           </div>
           
           <div className="text-center py-8 text-base-content/50">
