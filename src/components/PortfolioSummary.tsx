@@ -1,32 +1,32 @@
 import type { FC } from 'react';
 import { useSIPs } from '../hooks/useSIPs';
+import { useWithdrawals } from '../hooks/useWithdrawals';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency } from '../utils/calculations';
 import type { PortfolioSummary as PortfolioSummaryType } from '../types';
 
 const PortfolioSummary: FC = () => {
-  const { data: sips, isLoading } = useSIPs();
+  const { data: sips, isLoading: sipsLoading } = useSIPs();
+  const { data: withdrawals, isLoading: withdrawalsLoading } = useWithdrawals();
+  
+  const isLoading = sipsLoading || withdrawalsLoading;
 
   const calculatePortfolioSummary = (): PortfolioSummaryType => {
-    if (!sips || sips.length === 0) {
-      return {
-        total_invested: 0,
-        total_withdrawals: 0, // TODO: Implement withdrawals
-        net_portfolio: 0,
-        expected_value: 0,
-        total_gain_loss: 0,
-      };
-    }
-
+    // Calculate total invested from SIPs
     let totalInvested = 0;
     let expectedValue = 0;
 
-    sips.forEach((sip) => {
-      const installmentsPaid = calculateInstallmentsPaid(sip.start_date);
-      totalInvested += calculateTotalInvested(sip.amount, installmentsPaid);
-      expectedValue += calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
-    });
+    if (sips && sips.length > 0) {
+      sips.forEach((sip) => {
+        const installmentsPaid = calculateInstallmentsPaid(sip.start_date);
+        totalInvested += calculateTotalInvested(sip.amount, installmentsPaid);
+        expectedValue += calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
+      });
+    }
 
-    const totalWithdrawals = 0; // TODO: Calculate from withdrawals table
+    // Calculate total withdrawals
+    const totalWithdrawals = withdrawals?.reduce((sum, withdrawal) => sum + withdrawal.amount, 0) || 0;
+    
+    // Calculate net portfolio and gains/losses
     const netPortfolio = totalInvested - totalWithdrawals;
     const totalGainLoss = expectedValue - totalInvested;
 
@@ -86,7 +86,7 @@ const PortfolioSummary: FC = () => {
           <h2 className="card-title text-sm font-medium text-base-content/70">Total Withdrawals</h2>
           <p className="text-2xl font-bold text-warning">{formatCurrency(summary.total_withdrawals)}</p>
           <div className="text-xs text-base-content/60 mt-1">
-            Coming soon
+            {withdrawals?.length || 0} withdrawal{(withdrawals?.length || 0) !== 1 ? 's' : ''}
           </div>
         </div>
       </div>

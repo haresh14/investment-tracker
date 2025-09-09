@@ -3,11 +3,14 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import PortfolioSummary from '../components/PortfolioSummary';
 import SIPList from '../components/SIPList';
+import WithdrawalList from '../components/WithdrawalList';
 import AddSIPForm from '../components/AddSIPForm';
+import AddWithdrawalForm from '../components/AddWithdrawalForm';
 
 const Dashboard: FC = () => {
   const { user, signOut } = useAuth();
   const [showAddSIPForm, setShowAddSIPForm] = useState(false);
+  const [showAddWithdrawalForm, setShowAddWithdrawalForm] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -19,6 +22,14 @@ const Dashboard: FC = () => {
 
   const handleCloseAddSIPForm = () => {
     setShowAddSIPForm(false);
+  };
+
+  const handleAddWithdrawal = () => {
+    setShowAddWithdrawalForm(true);
+  };
+
+  const handleCloseAddWithdrawalForm = () => {
+    setShowAddWithdrawalForm(false);
   };
 
   return (
@@ -45,9 +56,19 @@ const Dashboard: FC = () => {
       {/* SIP List */}
       <SIPList onAddSIP={handleAddSIP} />
 
+      {/* Withdrawal List */}
+      <div className="mt-8">
+        <WithdrawalList onAddWithdrawal={handleAddWithdrawal} />
+      </div>
+
       {/* Add SIP Modal */}
       {showAddSIPForm && (
         <AddSIPForm onClose={handleCloseAddSIPForm} />
+      )}
+
+      {/* Add Withdrawal Modal */}
+      {showAddWithdrawalForm && (
+        <AddWithdrawalForm onClose={handleCloseAddWithdrawalForm} />
       )}
     </div>
   );
