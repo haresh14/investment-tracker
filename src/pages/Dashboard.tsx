@@ -1,17 +1,35 @@
 import type { FC } from 'react';
 import { testSupabaseConnection, testDatabaseOperations } from '../lib/supabase-test';
+import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: FC = () => {
+  const { user, signOut } = useAuth();
+  
   const handleTestConnection = async () => {
     await testSupabaseConnection();
     await testDatabaseOperations();
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-base-content">Investment Dashboard</h1>
-        <p className="text-base-content/70 mt-2">Track your SIP investments and returns</p>
+      {/* Header with user info */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-base-content">Investment Dashboard</h1>
+          <p className="text-base-content/70 mt-2">
+            Welcome back, {user?.email} • Track your SIP investments and returns
+          </p>
+        </div>
+        <button 
+          onClick={handleSignOut}
+          className="btn btn-outline btn-sm"
+        >
+          Sign Out
+        </button>
       </div>
 
       {/* Portfolio Summary Cards */}
