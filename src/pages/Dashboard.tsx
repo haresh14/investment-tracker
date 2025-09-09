@@ -1,17 +1,24 @@
 import type { FC } from 'react';
-import { testSupabaseConnection, testDatabaseOperations } from '../lib/supabase-test';
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import PortfolioSummary from '../components/PortfolioSummary';
+import SIPList from '../components/SIPList';
+import AddSIPForm from '../components/AddSIPForm';
 
 const Dashboard: FC = () => {
   const { user, signOut } = useAuth();
-  
-  const handleTestConnection = async () => {
-    await testSupabaseConnection();
-    await testDatabaseOperations();
-  };
+  const [showAddSIPForm, setShowAddSIPForm] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleAddSIP = () => {
+    setShowAddSIPForm(true);
+  };
+
+  const handleCloseAddSIPForm = () => {
+    setShowAddSIPForm(false);
   };
 
   return (
@@ -21,7 +28,7 @@ const Dashboard: FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-base-content">Investment Dashboard</h1>
           <p className="text-base-content/70 mt-2">
-            Welcome back, {user?.email} • Track your SIP investments and returns
+            Welcome back, {user?.email?.split('@')[0]} • Track your SIP investments and returns
           </p>
         </div>
         <button 
@@ -33,57 +40,15 @@ const Dashboard: FC = () => {
       </div>
 
       {/* Portfolio Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="card bg-base-200 shadow-sm">
-          <div className="card-body">
-            <h2 className="card-title text-sm font-medium text-base-content/70">Total Invested</h2>
-            <p className="text-2xl font-bold text-success">₹0</p>
-          </div>
-        </div>
-        
-        <div className="card bg-base-200 shadow-sm">
-          <div className="card-body">
-            <h2 className="card-title text-sm font-medium text-base-content/70">Expected Value</h2>
-            <p className="text-2xl font-bold text-info">₹0</p>
-          </div>
-        </div>
-        
-        <div className="card bg-base-200 shadow-sm">
-          <div className="card-body">
-            <h2 className="card-title text-sm font-medium text-base-content/70">Total Withdrawals</h2>
-            <p className="text-2xl font-bold text-warning">₹0</p>
-          </div>
-        </div>
-        
-        <div className="card bg-base-200 shadow-sm">
-          <div className="card-body">
-            <h2 className="card-title text-sm font-medium text-base-content/70">Net Portfolio</h2>
-            <p className="text-2xl font-bold text-primary">₹0</p>
-          </div>
-        </div>
-      </div>
+      <PortfolioSummary />
 
       {/* SIP List */}
-      <div className="card bg-base-100 shadow-sm">
-        <div className="card-body">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="card-title">Your SIPs</h2>
-            <div className="flex gap-2">
-              <button 
-                className="btn btn-outline btn-sm" 
-                onClick={handleTestConnection}
-              >
-                Test DB
-              </button>
-              <button className="btn btn-primary">Add SIP</button>
-            </div>
-          </div>
-          
-          <div className="text-center py-8 text-base-content/50">
-            <p>No SIPs added yet. Start by adding your first SIP investment.</p>
-          </div>
-        </div>
-      </div>
+      <SIPList onAddSIP={handleAddSIP} />
+
+      {/* Add SIP Modal */}
+      {showAddSIPForm && (
+        <AddSIPForm onClose={handleCloseAddSIPForm} />
+      )}
     </div>
   );
 };
