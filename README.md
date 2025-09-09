@@ -8,7 +8,8 @@ A lightweight personal finance tool for tracking SIP (Systematic Investment Plan
 - 💰 **Expected Returns**: Calculate compound interest returns using standard SIP formula
 - 📤 **Withdrawal Tracking**: Record and track withdrawals from investments
 - 📈 **Portfolio Dashboard**: View comprehensive portfolio summary and insights
-- 🔐 **Secure Authentication**: User authentication via Supabase Auth
+- 🔐 **Secure Authentication**: Email/password and Google OAuth via Supabase Auth
+- 👥 **User Switching**: Seamless account switching with automatic data isolation
 - 📱 **Mobile Responsive**: Optimized for mobile and desktop use
 
 ## Tech Stack
@@ -51,10 +52,9 @@ A lightweight personal finance tool for tracking SIP (Systematic Investment Plan
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-4. **Set up database schema** (Coming in Phase 3)
-   ```sql
-   -- Will be provided in the next development phase
-   ```
+4. **Set up database schema**
+   - Run the SQL script from `supabase-setup.sql` in your Supabase SQL editor
+   - This creates the required tables, indexes, and Row Level Security policies
 
 5. **Start the development server**
    ```bash
@@ -64,32 +64,29 @@ A lightweight personal finance tool for tracking SIP (Systematic Investment Plan
 6. **Open your browser**
    Navigate to `http://localhost:5173`
 
-## Development Phases
+7. **Optional: Set up Google OAuth** (Recommended)
+   - Follow the detailed setup guide in `docs/GOOGLE_OAUTH_SETUP.md`
+   - Configure Google Cloud Console and Supabase OAuth settings
 
-### ✅ Phase 1: Project Foundation (Completed)
-- [x] Development plan and documentation
-- [x] Tech stack selection and architecture design
+## Development Status
 
-### 🔄 Phase 2: Project Setup (In Progress)
-- [x] React project with Vite + TypeScript
-- [x] Tailwind CSS + DaisyUI setup
-- [x] React Query configuration
-- [x] Basic routing structure
-- [x] Project folder organization
-- [x] Basic UI components (Dashboard, Login)
-- [ ] Environment setup and testing
+### ✅ Completed Features (MVP Ready!)
+- **Authentication System**: Email/password + Google OAuth
+- **SIP Management**: Full CRUD operations with validation
+- **Withdrawal System**: Complete tracking with SIP linking
+- **Portfolio Dashboard**: Real-time calculations and summaries
+- **Responsive Design**: Mobile-first UI with DaisyUI
+- **Data Security**: Row Level Security and user isolation
+- **User Switching**: Automatic cache management
 
-### 📋 Phase 3: Supabase Configuration (Planned)
-- Database schema design
-- Row Level Security policies
-- Authentication setup
+### 🚀 Current Status: Production Ready
+All core MVP features are complete and tested. The app is ready for production deployment.
 
-### 📋 Phase 4+: Core Features (Planned)
-- Authentication system
-- SIP management
-- Calculation engine
-- Withdrawal tracking
-- Portfolio dashboard
+### 📋 Next Steps (Optional Enhancements)
+- Unit testing implementation
+- Performance optimization
+- Advanced analytics
+- Data export features
 
 ## Project Structure
 
@@ -114,6 +111,19 @@ Where:
 - `SIP` = Monthly investment amount
 - `r` = Annual expected return (as decimal)
 - `n` = Number of installments paid
+
+## Authentication Options
+
+### Email/Password Authentication
+- Standard email and password signup/signin
+- Secure password handling via Supabase Auth
+- Email verification and password reset support
+
+### Google OAuth (Recommended)
+- One-click Google sign-in
+- Automatic account creation
+- Secure OAuth flow with proper redirects
+- Setup guide available in `docs/GOOGLE_OAUTH_SETUP.md`
 
 ## Contributing
 
