@@ -70,6 +70,30 @@ A lightweight personal finance tool for tracking SIP (Systematic Investment Plan
    - Follow the detailed setup guide in `docs/GOOGLE_OAUTH_SETUP.md`
    - Configure Google Cloud Console and Supabase OAuth settings
 
+## Deployment
+
+### 🚀 Free Production Deployment
+
+Deploy your Investment Tracker to production using completely free services:
+
+**Quick Deploy to Vercel (Free)**:
+1. Push code to GitHub
+2. Connect GitHub to Vercel
+3. Deploy with one click
+4. Add environment variables
+5. Your app is live at `your-app.vercel.app`
+
+**Detailed Instructions**:
+- **Complete Guide**: See `DEPLOYMENT.md` for step-by-step instructions
+- **Free Stack**: Vercel (frontend) + Supabase (backend) = $0/month
+
+**Production Features**:
+- ✅ Automatic SSL certificates
+- ✅ Global CDN distribution
+- ✅ Automatic deployments from GitHub
+- ✅ Free custom domain support
+- ✅ Built-in analytics and monitoring
+
 ## Development Status
 
 ### ✅ Completed Features (MVP Ready!)
@@ -117,7 +141,7 @@ For detailed migration instructions, see `migrations/README.md`.
 
 ```
 investment-tracker/
-├── src/
+├── src/                   # Application source code
 │   ├── components/         # Reusable UI components
 │   ├── pages/             # Page components  
 │   ├── hooks/             # Custom React hooks
@@ -135,7 +159,10 @@ investment-tracker/
 │   ├── DEVELOPMENT_PLAN.md
 │   ├── PRD.md
 │   └── CONTEXT.md
-└── README.md              # This file
+├── DEPLOYMENT.md          # Production deployment guide
+├── SETUP.md              # Quick setup guide
+├── vercel.json           # Vercel deployment configuration
+└── README.md             # This file
 ```
 
 ## Key Formulas

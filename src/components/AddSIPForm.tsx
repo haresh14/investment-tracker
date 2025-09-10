@@ -88,6 +88,7 @@ const AddSIPForm: FC<AddSIPFormProps> = ({ onClose }) => {
         amount: parseFloat(formData.amount),
         annual_return: parseFloat(formData.annual_return),
         lock_period_months: formData.lock_period_months ? parseInt(formData.lock_period_months) : 0,
+        is_paused: false,
       });
       
       onClose();

@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSIPs, useDeleteSIP, usePauseSIP, useResumeSIP } from '../hooks/useSIPs';
+import { useSIPs, useDeleteSIP, useResumeSIP } from '../hooks/useSIPs';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
 import PauseSIPForm from './PauseSIPForm';
@@ -234,8 +234,8 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
           bValue = b.name.toLowerCase();
           break;
         case 'start_date':
-          aValue = new Date(a.start_date);
-          bValue = new Date(b.start_date);
+          aValue = new Date(a.start_date).getTime();
+          bValue = new Date(b.start_date).getTime();
           break;
         case 'amount':
           aValue = a.amount;
