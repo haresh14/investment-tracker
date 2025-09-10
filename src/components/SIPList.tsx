@@ -36,10 +36,16 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
   return (
     <>
       {/* Desktop Table Row */}
-      <tr className={`hidden lg:table-row hover:bg-base-200/50 ${sip.is_paused ? 'opacity-60' : ''}`}>
+      <tr className={`hidden lg:table-row hover:bg-base-200/50 ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}>
         <td className="font-medium">
           <div className="flex items-center gap-2">
             {sip.name}
+            {sip.status === 'inactive' && (
+              <div className="badge badge-error badge-xs">Inactive</div>
+            )}
+            {sip.status === 'completed' && (
+              <div className="badge badge-success badge-xs">Completed</div>
+            )}
             {sip.is_paused && (
               <div className="badge badge-warning badge-xs">Paused</div>
             )}
@@ -112,12 +118,18 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
       {/* Mobile Card View */}
       <tr className="lg:hidden">
         <td colSpan={6} className="p-0">
-          <div className={`card bg-base-50 border border-base-200 mb-3 ${sip.is_paused ? 'opacity-60' : ''}`}>
+          <div className={`card bg-base-50 border border-base-200 mb-3 ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}>
             <div className="card-body p-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold text-base-content">{sip.name}</h3>
+                    {sip.status === 'inactive' && (
+                      <div className="badge badge-error badge-xs">Inactive</div>
+                    )}
+                    {sip.status === 'completed' && (
+                      <div className="badge badge-success badge-xs">Completed</div>
+                    )}
                     {sip.is_paused && (
                       <div className="badge badge-warning badge-xs">Paused</div>
                     )}

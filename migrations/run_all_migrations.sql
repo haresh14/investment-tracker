@@ -1,6 +1,7 @@
 -- Investment Tracker - Complete Database Setup
 -- Run this script in Supabase SQL Editor to set up the complete database
 -- This script combines all migrations in the correct order
+-- Last updated: Added SIP Status Management (Migration 004)
 
 -- ============================================================================
 -- MIGRATION 001: Initial Setup
@@ -126,6 +127,41 @@ COMMENT ON COLUMN sips.lock_end_date IS 'Date when the locking period ends (calc
 
 -- Your Investment Tracker database is now ready!
 -- You can now start the application and begin tracking your SIP investments.
+
+-- ============================================================================
+-- MIGRATION 004: Add SIP Status Management
+-- ============================================================================
+
+-- Add status column to the sips table
+ALTER TABLE sips
+ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+
+-- Add index for better query performance on status
+CREATE INDEX IF NOT EXISTS idx_sips_status ON sips(status);
+
+-- Update existing SIPs to have active status by default
+UPDATE sips SET status = 'active' WHERE status IS NULL;
+
+-- Add check constraint to ensure valid status values
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name = 'chk_sip_status' 
+        AND table_name = 'sips'
+    ) THEN
+        ALTER TABLE sips
+        ADD CONSTRAINT chk_sip_status 
+        CHECK (status IN ('active', 'inactive', 'completed'));
+    END IF;
+END $$;
+
+-- Add comment for documentation
+COMMENT ON COLUMN sips.status IS 'Current status of the SIP (active, inactive, completed)';
+
+-- ============================================================================
+-- Sample Data (Optional)
+-- ============================================================================
 
 -- Optional: Insert sample data for testing (uncomment the lines below)
 -- Note: This will only work after you've authenticated at least once in the app
