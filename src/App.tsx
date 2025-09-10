@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import SIPDetail from './pages/SIPDetail';
+import Withdrawals from './pages/Withdrawals';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -72,6 +73,14 @@ const AppRoutes: FC = () => {
             element={
               <ProtectedRoute>
                 <SIPDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/withdrawals" 
+            element={
+              <ProtectedRoute>
+                <Withdrawals />
               </ProtectedRoute>
             } 
           />
