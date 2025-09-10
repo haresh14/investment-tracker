@@ -154,15 +154,129 @@ const calculateExpectedValue = (
 - [x] Test Google OAuth functionality
 - [x] Update authentication context with OAuth support
 
-### Phase 11: Testing & Deployment 📋
+### Phase 11: UI/UX Enhancements 📋
 **Status**: 📋 PLANNED
-- [ ] Set up unit tests for utilities
-- [ ] Test calculation accuracy
+- [ ] Optimize portfolio cards for mobile (2-column layout)
+- [ ] Reduce card and font sizes for better mobile experience
+- [ ] Improve responsive design for dashboard cards
+- [ ] Test mobile layout across different screen sizes
+
+**Sub-tasks for UI/UX Enhancements:**
+- [ ] Update PortfolioSummary component for 2-column mobile layout
+- [ ] Adjust card sizing and typography for mobile devices
+- [ ] Ensure proper spacing and readability on small screens
+- [ ] Test responsive behavior on various mobile devices
+
+### Phase 12: Advanced SIP List View 📋
+**Status**: 📋 PLANNED
+- [ ] Create tabular SIP list view with columns
+- [ ] Implement responsive table design for mobile
+- [ ] Add sortable columns (Name, Start Date, Installments, etc.)
+- [ ] Optimize table layout to avoid horizontal scrolling on mobile
+
+**SIP List Columns:**
+- Name: SIP investment name
+- Start Date: When the SIP started
+- Installments: Number of installments paid/total
+- Total Invested: Amount invested so far
+- Expected Return: Current expected value
+- Actions: Edit/Delete/View buttons
+
+**Sub-tasks for SIP List View:**
+- [ ] Design responsive table component
+- [ ] Implement column sorting functionality
+- [ ] Create mobile-optimized table layout (stacked cards or accordion)
+- [ ] Add loading states and empty states
+- [ ] Integrate with existing SIP data and actions
+
+### Phase 13: SIP Pause Functionality 📋
+**Status**: 📋 PLANNED
+- [ ] Add pause_date field to SIP database schema
+- [ ] Implement pause/resume SIP functionality
+- [ ] Update calculation engine to handle paused periods
+- [ ] Create UI controls for pausing/resuming SIPs
+
+**Database Schema Updates:**
+```sql
+-- Add pause functionality to sips table
+ALTER TABLE sips ADD COLUMN pause_date DATE;
+ALTER TABLE sips ADD COLUMN is_paused BOOLEAN DEFAULT FALSE;
+```
+
+**Sub-tasks for SIP Pause:**
+- [ ] Update database schema with pause fields
+- [ ] Modify SIP calculation logic to account for paused periods
+- [ ] Add pause/resume buttons to SIP list and detail views
+- [ ] Update forms to handle pause date input
+- [ ] Create visual indicators for paused SIPs
+- [ ] Test pause functionality with various scenarios
+
+### Phase 14: SIP Detail View & Transaction History 📋
+**Status**: 📋 PLANNED
+- [ ] Create detailed SIP view page with full information
+- [ ] Generate transaction history table for each SIP
+- [ ] Calculate expected returns for individual installments
+- [ ] Implement navigation to SIP detail from list view
+
+**SIP Detail View Features:**
+- Complete SIP information (name, amount, return rate, dates)
+- Transaction history table with columns:
+  - Date: Installment date
+  - Amount: Investment amount
+  - Cumulative Invested: Running total
+  - Expected Value: Projected value at that point
+  - Growth: Gain/loss for that installment
+- Visual charts for growth over time (optional)
+- Edit/Delete actions
+
+**Sub-tasks for SIP Detail View:**
+- [ ] Create SIP detail page component
+- [ ] Implement transaction history generation logic
+- [ ] Design responsive detail view layout
+- [ ] Add navigation routing for SIP details
+- [ ] Create installment-wise calculation utilities
+- [ ] Add breadcrumb navigation
+- [ ] Implement print/export functionality (optional)
+
+### Phase 15: Locking Period & Available Withdrawal 📋
+**Status**: 📋 PLANNED
+- [ ] Add locking period field to SIP schema
+- [ ] Calculate available withdrawal amounts
+- [ ] Update SIP views to show locked vs available amounts
+- [ ] Implement withdrawal restrictions based on locking period
+
+**Database Schema Updates:**
+```sql
+-- Add locking period to sips table
+ALTER TABLE sips ADD COLUMN lock_period_months INTEGER DEFAULT 0;
+ALTER TABLE sips ADD COLUMN lock_end_date DATE;
+```
+
+**Locking Period Logic:**
+- Lock Period: Number of months from start date
+- Locked Amount: Investments made within the locking period
+- Available Amount: Investments older than locking period
+- Withdrawal Restriction: Only allow withdrawals from available amount
+
+**Sub-tasks for Locking Period:**
+- [ ] Update database schema with locking fields
+- [ ] Create locking period calculation utilities
+- [ ] Update SIP forms to include locking period input
+- [ ] Modify portfolio calculations to show locked vs available
+- [ ] Add visual indicators for locked amounts
+- [ ] Update withdrawal forms with availability checks
+- [ ] Create validation rules for withdrawal limits
+- [ ] Test locking scenarios with various time periods
+
+### Phase 16: Testing & Deployment 📋
+**Status**: 📋 PLANNED
+- [ ] Set up unit tests for new features
+- [ ] Test calculation accuracy for all scenarios
 - [ ] Perform end-to-end testing
 - [ ] Set up Vercel deployment
 - [ ] Configure environment variables
 - [ ] Test production build
-- [ ] Update README with setup instructions
+- [ ] Update README with new features
 
 ## Testing Instructions per Phase
 
@@ -230,13 +344,48 @@ const calculateExpectedValue = (
 5. Verify authentication persistence across sessions
 
 ### Phase 11 Testing:
-1. Run full test suite
-2. Test production build
-3. Verify deployment works
-4. Check all features in production
-5. Test with sample data
+1. Test portfolio cards in mobile view (2-column layout)
+2. Verify card sizing and font readability on small screens
+3. Check responsive behavior across different devices
+4. Test touch interactions on mobile
+5. Verify proper spacing and alignment
 
-## Current Status: Phase 11 - Testing & Deployment 🔄
+### Phase 12 Testing:
+1. Test SIP list table view on desktop and mobile
+2. Verify column sorting functionality
+3. Check mobile table layout (no horizontal scroll)
+4. Test all table actions (edit, delete, view)
+5. Verify data accuracy in all columns
+
+### Phase 13 Testing:
+1. Test SIP pause/resume functionality
+2. Verify calculation accuracy with paused periods
+3. Check pause date validation and UI controls
+4. Test visual indicators for paused SIPs
+5. Verify database updates for pause status
+
+### Phase 14 Testing:
+1. Test SIP detail view navigation and layout
+2. Verify transaction history accuracy
+3. Check installment-wise calculations
+4. Test responsive design of detail view
+5. Verify all SIP information display
+
+### Phase 15 Testing:
+1. Test locking period calculations
+2. Verify available vs locked amount display
+3. Check withdrawal restrictions based on locking
+4. Test locking period form inputs and validation
+5. Verify visual indicators for locked amounts
+
+### Phase 16 Testing:
+1. Run comprehensive test suite for all features
+2. Test production build with new features
+3. Verify deployment works with updated schema
+4. Check all features in production environment
+5. Test with various data scenarios
+
+## Current Status: Phase 11 - UI/UX Enhancements 🔄
 
 **Completed Phases:**
 - ✅ **Phase 1**: Project Foundation
@@ -250,8 +399,16 @@ const calculateExpectedValue = (
 - ✅ **Phase 9**: Portfolio Dashboard (Real-time Summary + Responsive Cards)
 - ✅ **Phase 10**: Google OAuth & Advanced Features (OAuth + Cache Management)
 
-**Current Phase**: Phase 11 - Testing & Deployment
-**Next Action**: Prepare for production deployment and final testing.
+**Current Phase**: Phase 11 - UI/UX Enhancements
+**Next Action**: Optimize mobile layout for portfolio cards (2-column view)
+
+**🚀 Upcoming Enhanced Features:**
+- **Phase 11**: Mobile-optimized portfolio cards with 2-column layout
+- **Phase 12**: Advanced tabular SIP list view with sorting
+- **Phase 13**: SIP pause/resume functionality with date tracking
+- **Phase 14**: Detailed SIP view with transaction history
+- **Phase 15**: Locking period with withdrawal availability calculations
+- **Phase 16**: Comprehensive testing and deployment
 
 **🎉 Major Accomplishments:**
 - ✅ **Full Authentication System**: Secure login/signup with Supabase Auth + Google OAuth
@@ -282,6 +439,7 @@ const calculateExpectedValue = (
 - ✅ Implemented Google OAuth with proper redirect handling
 - ✅ Fixed React Query cache persistence when switching users
 - ✅ Added automatic cache clearing on user authentication changes
+- ✅ Applied bumblebee theme for improved visual appeal
 
 ## Notes
 - Each phase should be completed and tested before moving to the next
