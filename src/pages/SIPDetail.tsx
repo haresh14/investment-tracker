@@ -1,12 +1,12 @@
 import type { FC } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useSIPs } from '../hooks/useSIPs';
+import Header from '../components/Header';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked, calculateLockEndDate } from '../utils/calculations';
 import { format, addMonths, parseISO } from 'date-fns';
 
 const SIPDetail: FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data: sips, isLoading, error } = useSIPs();
 
   if (isLoading) {
@@ -97,23 +97,15 @@ const SIPDetail: FC = () => {
 
   const transactions = generateTransactionHistory();
 
-  const handleGoBack = () => {
-    navigate('/dashboard');
-  };
-
   return (
-    <div className="min-h-screen bg-base-200 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <button 
-            onClick={handleGoBack}
-            className="btn btn-ghost btn-sm"
-            aria-label="Go back to dashboard"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
+    <div className="min-h-screen bg-base-200">
+      <Header 
+        title={sip.name}
+        subtitle={`SIP Details • ${sip.annual_return}% Annual Return • Started ${new Date(sip.start_date).toLocaleDateString('en-IN')}`}
+      />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto space-y-6">
 
         {/* SIP Overview Card */}
         <div className="card bg-base-100 shadow-sm">
@@ -304,6 +296,7 @@ const SIPDetail: FC = () => {
               </>
             )}
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -64,7 +64,7 @@ const PortfolioSummary: FC = () => {
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-      <div className="card bg-gradient-to-br from-info/10 to-info/5 border border-info/20 shadow-sm">
+      <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-3 sm:p-4 lg:p-6">
           <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Total Invested</h2>
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-info leading-tight mt-1">{formatCurrency(summary.total_invested)}</p>
@@ -74,7 +74,7 @@ const PortfolioSummary: FC = () => {
         </div>
       </div>
 
-      <div className="card bg-gradient-to-br from-success/10 to-success/5 border border-success/20 shadow-sm">
+      <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-3 sm:p-4 lg:p-6">
           <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Expected Value</h2>
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-success leading-tight mt-1">{formatCurrency(summary.expected_value)}</p>
@@ -84,7 +84,7 @@ const PortfolioSummary: FC = () => {
         </div>
       </div>
 
-      <div className="card bg-gradient-to-br from-warning/10 to-warning/5 border border-warning/20 shadow-sm">
+      <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-3 sm:p-4 lg:p-6">
           <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Withdrawals</h2>
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-warning leading-tight mt-1">{formatCurrency(summary.total_withdrawals)}</p>
@@ -94,11 +94,7 @@ const PortfolioSummary: FC = () => {
         </div>
       </div>
 
-      <div className={`card bg-gradient-to-br shadow-sm border ${
-        summary.total_gain_loss >= 0 
-          ? 'from-success/10 to-success/5 border-success/20' 
-          : 'from-error/10 to-error/5 border-error/20'
-      }`}>
+      <div className="card bg-base-100 border border-base-300 shadow-sm">
         <div className="card-body p-3 sm:p-4 lg:p-6">
           <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Gain/Loss</h2>
           <p className={`text-lg sm:text-xl lg:text-2xl font-bold leading-tight mt-1 ${summary.total_gain_loss >= 0 ? 'text-success' : 'text-error'}`}>
