@@ -413,6 +413,45 @@ This feature calculates the actual percentage return achieved so far based on th
 // Average Expected Return = (7.24 + 6.07 + 4.91 + 3.75 + 2.60 + 1.17) / 6 = 4.29%
 ```
 
+**Complete Calculation Example:**
+```typescript
+// Real-world SIP scenario: ₹5,000/month, 15% annual return, started Jan 1, 2024
+// Current date: July 1, 2024 (7 months later)
+
+// Step 1: Calculate installments paid
+calculateInstallmentsPaid('2024-01-01', null, false)
+// = 7 installments (Jan, Feb, Mar, Apr, May, Jun, Jul)
+
+// Step 2: Calculate total invested
+calculateTotalInvested(5000, 7)
+// = ₹35,000 (5000 × 7)
+
+// Step 3: Calculate expected value (compound interest)
+calculateExpectedValue(5000, 15, 7)
+// monthlyRate = 15/100/12 = 0.0125
+// = 5000 × ((1.0125^7 - 1) / 0.0125)
+// = 5000 × (1.0919 - 1) / 0.0125
+// = 5000 × 7.352 = ₹36,760
+
+// Step 4: Calculate overall expected percentage
+calculateOverallExpectedPercentage('2024-01-01', 15, null, false)
+// Installment 1 (6 months): (1.15)^(6/12) - 1 = 7.24%
+// Installment 2 (5 months): (1.15)^(5/12) - 1 = 6.07%
+// Installment 3 (4 months): (1.15)^(4/12) - 1 = 4.91%
+// Installment 4 (3 months): (1.15)^(3/12) - 1 = 3.75%
+// Installment 5 (2 months): (1.15)^(2/12) - 1 = 2.60%
+// Installment 6 (1 month):  (1.15)^(1/12) - 1 = 1.17%
+// Installment 7 (0 months): 0% (current month, not counted)
+// Average = (7.24 + 6.07 + 4.91 + 3.75 + 2.60 + 1.17) / 6 = 4.29%
+
+// Step 5: Calculate available withdrawal (with 12-month lock)
+calculateAvailableWithdrawal('2024-01-01', 5000, 15, 12, null, false)
+// lockEndDate = Jan 1, 2025 (12 months from start)
+// Since current date (Jul 2024) < lockEndDate (Jan 2025):
+// All installments are still locked
+// = { availableAmount: ₹0, lockedAmount: ₹36,760, totalValue: ₹36,760 }
+```
+
 **Sub-tasks for Overall Expected %:**
 - [x] Create calculateOverallExpectedPercentage utility function
 - [x] Add time-weighted return calculation logic
