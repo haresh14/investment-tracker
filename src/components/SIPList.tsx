@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSIPs, useDeleteSIP, usePauseSIP, useResumeSIP } from '../hooks/useSIPs';
-import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency } from '../utils/calculations';
+import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
 import PauseSIPForm from './PauseSIPForm';
 import type { SIP } from '../types';
@@ -23,6 +23,15 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
   const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
+  const isLocked = isSIPLocked(sip.start_date, sip.lock_period_months);
+  const { availableAmount, lockedAmount } = calculateAvailableWithdrawal(
+    sip.start_date,
+    sip.amount,
+    sip.annual_return,
+    sip.lock_period_months,
+    sip.pause_date,
+    sip.is_paused
+  );
 
   return (
     <>
@@ -34,12 +43,23 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
             {sip.is_paused && (
               <div className="badge badge-warning badge-xs">Paused</div>
             )}
+            {isLocked && (
+              <div className="badge badge-info badge-xs">🔒 Locked</div>
+            )}
           </div>
         </td>
         <td>{new Date(sip.start_date).toLocaleDateString('en-IN')}</td>
         <td>{installmentsPaid}</td>
         <td className="text-info font-medium">{formatCurrency(totalInvested)}</td>
         <td className="text-success font-medium">{formatCurrency(expectedValue)}</td>
+        <td>
+          <div className="text-sm">
+            <div className="text-success font-medium">{formatCurrency(availableAmount)}</div>
+            {lockedAmount > 0 && (
+              <div className="text-warning text-xs">🔒 {formatCurrency(lockedAmount)} locked</div>
+            )}
+          </div>
+        </td>
         <td>
           <div className="flex gap-1">
             {sip.is_paused ? (
@@ -101,6 +121,9 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                     {sip.is_paused && (
                       <div className="badge badge-warning badge-xs">Paused</div>
                     )}
+                    {isLocked && (
+                      <div className="badge badge-info badge-xs">🔒 Locked</div>
+                    )}
                   </div>
                   <p className="text-sm text-base-content/60">
                     Started: {new Date(sip.start_date).toLocaleDateString('en-IN')}
@@ -160,6 +183,15 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                 <div>
                   <p className="text-base-content/60">Expected Value</p>
                   <p className="font-medium text-success">{formatCurrency(expectedValue)}</p>
+                </div>
+                <div>
+                  <p className="text-base-content/60">Available</p>
+                  <div>
+                    <p className="font-medium text-success">{formatCurrency(availableAmount)}</p>
+                    {lockedAmount > 0 && (
+                      <p className="text-xs text-warning">🔒 {formatCurrency(lockedAmount)} locked</p>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <p className="text-base-content/60">Monthly SIP</p>
@@ -394,6 +426,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                       Expected Value {getSortIcon('expected_value')}
                     </div>
                   </th>
+                  <th>Available for Withdrawal</th>
                   <th>Actions</th>
                 </tr>
               </thead>

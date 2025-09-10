@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSIPs } from '../hooks/useSIPs';
-import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency } from '../utils/calculations';
+import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked, calculateLockEndDate } from '../utils/calculations';
 import { format, addMonths, parseISO } from 'date-fns';
 
 const SIPDetail: FC = () => {
@@ -55,6 +55,16 @@ const SIPDetail: FC = () => {
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
   const currentGain = expectedValue - totalInvested;
+  const isLocked = isSIPLocked(sip.start_date, sip.lock_period_months);
+  const lockEndDate = calculateLockEndDate(sip.start_date, sip.lock_period_months);
+  const { availableAmount, lockedAmount } = calculateAvailableWithdrawal(
+    sip.start_date,
+    sip.amount,
+    sip.annual_return,
+    sip.lock_period_months,
+    sip.pause_date,
+    sip.is_paused
+  );
 
   // Generate transaction history
   const generateTransactionHistory = () => {
@@ -115,11 +125,17 @@ const SIPDetail: FC = () => {
                   {sip.is_paused && (
                     <span className="badge badge-warning badge-sm">Paused</span>
                   )}
+                  {isLocked && (
+                    <span className="badge badge-info badge-sm">🔒 Locked</span>
+                  )}
                 </h1>
                 <p className="text-base-content/60 mt-1">
                   Started on {format(parseISO(sip.start_date), 'dd MMM yyyy')}
                   {sip.is_paused && sip.pause_date && (
                     <span> • Paused on {format(parseISO(sip.pause_date), 'dd MMM yyyy')}</span>
+                  )}
+                  {isLocked && lockEndDate && (
+                    <span> • Locked until {format(parseISO(lockEndDate), 'dd MMM yyyy')}</span>
                   )}
                 </p>
               </div>
@@ -155,7 +171,7 @@ const SIPDetail: FC = () => {
             </div>
 
             {/* Financial Summary */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               <div className="stat bg-primary/10 rounded-lg p-4">
                 <div className="stat-title text-sm">Total Invested</div>
                 <div className="stat-value text-xl text-primary">{formatCurrency(totalInvested)}</div>
@@ -166,15 +182,33 @@ const SIPDetail: FC = () => {
                 <div className="stat-value text-xl text-secondary">{formatCurrency(expectedValue)}</div>
               </div>
               
-              <div className={`stat rounded-lg p-4 ${currentGain >= 0 ? 'bg-success/10' : 'bg-error/10'}`}>
-                <div className="stat-title text-sm">Current Gain/Loss</div>
-                <div className={`stat-value text-xl ${currentGain >= 0 ? 'text-success' : 'text-error'}`}>
-                  {formatCurrency(currentGain)}
-                </div>
+              <div className="stat bg-success/10 rounded-lg p-4">
+                <div className="stat-title text-sm">Available for Withdrawal</div>
+                <div className="stat-value text-xl text-success">{formatCurrency(availableAmount)}</div>
                 <div className="stat-desc">
-                  {totalInvested > 0 ? `${((currentGain / totalInvested) * 100).toFixed(2)}%` : '0%'}
+                  {((availableAmount / expectedValue) * 100).toFixed(1)}% of total value
                 </div>
               </div>
+              
+              {lockedAmount > 0 ? (
+                <div className="stat bg-warning/10 rounded-lg p-4">
+                  <div className="stat-title text-sm">Locked Amount</div>
+                  <div className="stat-value text-xl text-warning">{formatCurrency(lockedAmount)}</div>
+                  <div className="stat-desc">
+                    {lockEndDate && `Until ${format(parseISO(lockEndDate), 'dd MMM yyyy')}`}
+                  </div>
+                </div>
+              ) : (
+                <div className={`stat rounded-lg p-4 ${currentGain >= 0 ? 'bg-success/10' : 'bg-error/10'}`}>
+                  <div className="stat-title text-sm">Current Gain/Loss</div>
+                  <div className={`stat-value text-xl ${currentGain >= 0 ? 'text-success' : 'text-error'}`}>
+                    {formatCurrency(currentGain)}
+                  </div>
+                  <div className="stat-desc">
+                    {totalInvested > 0 ? `${((currentGain / totalInvested) * 100).toFixed(2)}%` : '0%'}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

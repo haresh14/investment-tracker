@@ -240,12 +240,15 @@ ALTER TABLE sips ADD COLUMN is_paused BOOLEAN DEFAULT FALSE;
 - [ ] Add breadcrumb navigation
 - [ ] Implement print/export functionality (optional)
 
-### Phase 15: Locking Period & Available Withdrawal 📋
-**Status**: 📋 PLANNED
-- [ ] Add locking period field to SIP schema
-- [ ] Calculate available withdrawal amounts
-- [ ] Update SIP views to show locked vs available amounts
-- [ ] Implement withdrawal restrictions based on locking period
+### Phase 15: Locking Period & Available Withdrawal ✅
+**Status**: ✅ COMPLETED
+- [x] Add locking period field to SIP schema
+- [x] Calculate available withdrawal amounts
+- [x] Update SIP views to show locked vs available amounts
+- [x] Implement withdrawal restrictions based on locking period
+- [x] Add locking period input to Add/Edit SIP forms
+- [x] Display lock status indicators and badges
+- [x] Show lock end dates and availability percentages
 
 **Database Schema Updates:**
 ```sql
