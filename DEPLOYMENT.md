@@ -4,6 +4,18 @@
 
 This guide walks you through deploying the Investment Tracker using completely free services.
 
+### 🎯 Quick Reference - Post-Deployment Checklist
+
+After deploying to Vercel, **IMMEDIATELY** update these settings or authentication will fail:
+
+1. **Supabase**: Add production URLs to redirect URLs list (keep Site URL as localhost for shared instance)
+2. **Google OAuth**: Add Vercel domain to authorized origins (if using Google login)
+3. **Test**: Verify signup/login works on production
+
+**💡 For Shared Supabase Instance**: Keep Site URL as `http://localhost:5173` and add production URLs to redirect URLs list
+
+📍 **Detailed instructions in Step 3 and Post-Deployment section below**
+
 ### Prerequisites
 
 - ✅ Supabase project set up and running
@@ -97,32 +109,91 @@ After adding environment variables:
 
 ## Step 3: Configure Supabase for Production
 
-### 3.1 Update Supabase Auth Settings
+⚠️ **CRITICAL**: After deployment, you MUST update Supabase settings or authentication will fail!
 
-In Supabase Dashboard → Authentication → URL Configuration:
+### 3.1 Get Your Vercel Domain
 
-**Site URL**: `https://your-app.vercel.app`
+After deployment, Vercel provides your app URL:
+- **Automatic domain**: `https://your-project-name.vercel.app`
+- **Custom domain** (if configured): `https://yourdomain.com`
 
-**Redirect URLs**: Add these URLs:
+### 3.2 Update Supabase Authentication Settings
+
+**🔗 Navigate to Supabase Dashboard:**
+1. Go to [supabase.com/dashboard](https://supabase.com/dashboard)
+2. Select your project
+3. Go to **Authentication** → **URL Configuration**
+
+**📝 Site URL Configuration:**
+
+**Option A: Shared Instance (Recommended)**
+If using the same Supabase instance for local development AND production:
 ```
-https://your-app.vercel.app
-https://your-app.vercel.app/dashboard
-https://your-app.vercel.app/**
+Site URL: http://localhost:5173
+```
+*Keep your local development URL as the main Site URL*
+
+**Option B: Production Only**
+If using separate Supabase instances:
+```
+Site URL: https://your-project-name.vercel.app
 ```
 
-### 3.2 Update Google OAuth (if using)
+**📝 Add Redirect URLs:**
+Add ALL these URLs to support both local development and production:
+```
+http://localhost:5173
+http://localhost:5173/
+http://localhost:5173/dashboard
+http://localhost:5173/**
+https://your-project-name.vercel.app
+https://your-project-name.vercel.app/
+https://your-project-name.vercel.app/dashboard
+https://your-project-name.vercel.app/**
+```
 
-If you set up Google OAuth, update your Google Cloud Console:
+**💡 Pro Tip**: 
+- The Site URL is the **primary** redirect after authentication
+- Redirect URLs list allows **additional** valid redirect destinations
+- You can have multiple domains in the redirect URLs list
+- The `/**` wildcard allows all routes under each domain
 
-**Authorized JavaScript origins**:
+### 3.3 Update Google OAuth (if configured)
+
+If you set up Google OAuth, update your **Google Cloud Console**:
+
+**🔗 Navigate to Google Cloud Console:**
+1. Go to [console.cloud.google.com](https://console.cloud.google.com)
+2. Select your project
+3. Go to **APIs & Services** → **Credentials**
+4. Edit your OAuth 2.0 Client ID
+
+**📝 Update Authorized JavaScript Origins:**
+Add BOTH local development and production domains:
 ```
-https://your-app.vercel.app
+http://localhost:5173
+https://your-project-name.vercel.app
 ```
 
-**Authorized redirect URIs**:
+**📝 Authorized Redirect URIs:**
+Keep the Supabase callback URL (don't change this):
 ```
-https://your-supabase-project.supabase.co/auth/v1/callback
+https://your-supabase-project-id.supabase.co/auth/v1/callback
 ```
+
+### 3.4 Test Authentication After Configuration
+
+**✅ Immediate Test Checklist:**
+1. Visit your deployed app
+2. Try signing up with a new email
+3. Try logging in with existing credentials
+4. Test Google OAuth (if configured)
+5. Verify user can access dashboard after login
+
+**🚨 Common Issues:**
+- **"Invalid login credentials"**: Check Site URL in Supabase
+- **OAuth redirect errors**: Verify redirect URLs match exactly
+- **Google OAuth fails**: Check Google Cloud Console settings
 
 ## Step 4: Test Production Deployment
 
@@ -238,6 +309,55 @@ git push origin main
 3. Verify Supabase project status
 4. Test locally with production build
 
+## 🎯 Post-Deployment Configuration (REQUIRED)
+
+### ⚠️ CRITICAL: Complete These Steps Immediately After Deployment
+
+Your app is deployed but **authentication will NOT work** until you complete these configurations:
+
+#### 1. **Update Supabase Redirect URLs** (Required for production authentication)
+```bash
+# Add your production URL to redirect URLs (example)
+https://investment-tracker-abc123.vercel.app
+```
+
+**Steps:**
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project → **Authentication** → **URL Configuration**
+3. **Keep Site URL as localhost** (for shared instance)
+4. **Add production URLs** to Redirect URLs list (see Step 3.2 above)
+
+#### 2. **Update Google OAuth** (If you configured Google login)
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. **APIs & Services** → **Credentials** → Edit OAuth Client
+3. Add your Vercel domain to **Authorized JavaScript origins**
+
+#### 3. **Test Authentication Immediately**
+- [ ] Sign up with new email works
+- [ ] Login with existing account works  
+- [ ] Google OAuth works (if configured)
+- [ ] User can access dashboard after login
+
+### 🚨 If Authentication Fails
+
+**Common Error Messages & Solutions:**
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Invalid login credentials" | Missing production URLs in redirect list | Add production URLs to Supabase redirect URLs |
+| "OAuth redirect error" | Missing redirect URLs | Add all redirect URLs in Supabase |
+| "Google OAuth fails" | Wrong origins in Google Console | Add Vercel domain to Google OAuth |
+| "Access denied" | RLS policies not working | Verify database migrations ran |
+
+### 📞 Need Help?
+If authentication still doesn't work:
+1. Check browser console for errors
+2. Verify all URLs match exactly (no trailing slashes)
+3. Wait 2-3 minutes for DNS propagation
+4. Try incognito/private browsing mode
+
+---
+
 ## 🎉 Deployment Complete!
 
 Your Investment Tracker is now live and accessible to users worldwide!
@@ -247,7 +367,9 @@ Your Investment Tracker is now live and accessible to users worldwide!
 - **Supabase**: 500MB database, 50MB storage, 50,000 monthly active users
 
 **Next Steps**:
-- Share your app with users
-- Monitor usage and performance
-- Plan for scaling if needed
-- Consider premium features for growth
+- ✅ Complete post-deployment configuration above
+- 📱 Test on mobile devices
+- 👥 Share your app with users
+- 📊 Monitor usage and performance
+- 🚀 Plan for scaling if needed
+- 💡 Consider premium features for growth
