@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import SIPDetail from './pages/SIPDetail';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -63,6 +64,14 @@ const AppRoutes: FC = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/sip/:id" 
+            element={
+              <ProtectedRoute>
+                <SIPDetail />
               </ProtectedRoute>
             } 
           />

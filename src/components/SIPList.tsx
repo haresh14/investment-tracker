@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSIPs, useDeleteSIP, usePauseSIP, useResumeSIP } from '../hooks/useSIPs';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
@@ -15,9 +16,10 @@ interface SIPRowProps {
   onDelete: (id: string) => void;
   onPause: (sip: SIP) => void;
   onResume: (sip: SIP) => void;
+  onViewDetails: (id: string) => void;
 }
 
-const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume }) => {
+const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onViewDetails }) => {
   const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
@@ -59,6 +61,14 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume }) =
                 ⏸️
               </button>
             )}
+            <button 
+              className="btn btn-ghost btn-xs text-info" 
+              onClick={() => onViewDetails(sip.id)}
+              aria-label="View SIP Details"
+              title="View Details"
+            >
+              👁️
+            </button>
             <button 
               className="btn btn-ghost btn-xs" 
               onClick={() => onEdit(sip)}
@@ -115,6 +125,13 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume }) =
                     </button>
                   )}
                   <button 
+                    className="btn btn-ghost btn-xs text-info" 
+                    onClick={() => onViewDetails(sip.id)}
+                    aria-label="View SIP Details"
+                  >
+                    👁️
+                  </button>
+                  <button 
                     className="btn btn-ghost btn-xs" 
                     onClick={() => onEdit(sip)}
                     aria-label="Edit SIP"
@@ -162,9 +179,10 @@ interface SIPListProps {
 }
 
 const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
+  const navigate = useNavigate();
   const { data: sips, isLoading, error } = useSIPs();
   const deleteSIP = useDeleteSIP();
-  const pauseSIP = usePauseSIP();
+  // pauseSIP hook is used in PauseSIPForm component
   const resumeSIP = useResumeSIP();
   const [editingSIP, setEditingSIP] = useState<SIP | null>(null);
   const [pausingSIP, setPausingSIP] = useState<SIP | null>(null);
@@ -175,8 +193,8 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
     if (!sips) return [];
 
     return [...sips].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
+      let aValue: string | number;
+      let bValue: string | number;
 
       switch (sortField) {
         case 'name':
@@ -265,6 +283,10 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
         console.error('Failed to resume SIP:', error);
       }
     }
+  };
+
+  const handleViewDetails = (id: string) => {
+    navigate(`/sip/${id}`);
   };
 
   if (isLoading) {
@@ -384,6 +406,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     onDelete={handleDelete}
                     onPause={handlePause}
                     onResume={handleResume}
+                    onViewDetails={handleViewDetails}
                   />
                 ))}
               </tbody>
