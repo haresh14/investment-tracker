@@ -44,13 +44,13 @@ const PortfolioSummary: FC = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="card bg-base-200 shadow-sm">
-            <div className="card-body">
+            <div className="card-body p-3 sm:p-4 lg:p-6">
               <div className="animate-pulse">
-                <div className="h-4 bg-base-300 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-base-300 rounded w-1/2"></div>
+                <div className="h-3 sm:h-4 bg-base-300 rounded w-3/4 mb-2"></div>
+                <div className="h-6 sm:h-8 bg-base-300 rounded w-1/2"></div>
               </div>
             </div>
           </div>
@@ -60,32 +60,32 @@ const PortfolioSummary: FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
       <div className="card bg-gradient-to-br from-info/10 to-info/5 border border-info/20 shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title text-sm font-medium text-base-content/70">Total Invested</h2>
-          <p className="text-2xl font-bold text-info">{formatCurrency(summary.total_invested)}</p>
-          <div className="text-xs text-base-content/60 mt-1">
-            Across {sips?.length || 0} SIP{(sips?.length || 0) !== 1 ? 's' : ''}
+        <div className="card-body p-3 sm:p-4 lg:p-6">
+          <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Total Invested</h2>
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-info leading-tight mt-1">{formatCurrency(summary.total_invested)}</p>
+          <div className="text-xs text-base-content/60 mt-1 leading-tight">
+            {sips?.length || 0} SIP{(sips?.length || 0) !== 1 ? 's' : ''}
           </div>
         </div>
       </div>
 
       <div className="card bg-gradient-to-br from-success/10 to-success/5 border border-success/20 shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title text-sm font-medium text-base-content/70">Expected Value</h2>
-          <p className="text-2xl font-bold text-success">{formatCurrency(summary.expected_value)}</p>
-          <div className="text-xs text-base-content/60 mt-1">
-            Based on expected returns
+        <div className="card-body p-3 sm:p-4 lg:p-6">
+          <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Expected Value</h2>
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-success leading-tight mt-1">{formatCurrency(summary.expected_value)}</p>
+          <div className="text-xs text-base-content/60 mt-1 leading-tight">
+            Expected returns
           </div>
         </div>
       </div>
 
       <div className="card bg-gradient-to-br from-warning/10 to-warning/5 border border-warning/20 shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title text-sm font-medium text-base-content/70">Total Withdrawals</h2>
-          <p className="text-2xl font-bold text-warning">{formatCurrency(summary.total_withdrawals)}</p>
-          <div className="text-xs text-base-content/60 mt-1">
+        <div className="card-body p-3 sm:p-4 lg:p-6">
+          <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Withdrawals</h2>
+          <p className="text-lg sm:text-xl lg:text-2xl font-bold text-warning leading-tight mt-1">{formatCurrency(summary.total_withdrawals)}</p>
+          <div className="text-xs text-base-content/60 mt-1 leading-tight">
             {withdrawals?.length || 0} withdrawal{(withdrawals?.length || 0) !== 1 ? 's' : ''}
           </div>
         </div>
@@ -96,13 +96,13 @@ const PortfolioSummary: FC = () => {
           ? 'from-success/10 to-success/5 border-success/20' 
           : 'from-error/10 to-error/5 border-error/20'
       }`}>
-        <div className="card-body">
-          <h2 className="card-title text-sm font-medium text-base-content/70">Total Gain/Loss</h2>
-          <p className={`text-2xl font-bold ${summary.total_gain_loss >= 0 ? 'text-success' : 'text-error'}`}>
+        <div className="card-body p-3 sm:p-4 lg:p-6">
+          <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Gain/Loss</h2>
+          <p className={`text-lg sm:text-xl lg:text-2xl font-bold leading-tight mt-1 ${summary.total_gain_loss >= 0 ? 'text-success' : 'text-error'}`}>
             {formatCurrency(summary.total_gain_loss)}
           </p>
-          <div className="text-xs text-base-content/60 mt-1">
-            {gainLossPercentage >= 0 ? '+' : ''}{gainLossPercentage.toFixed(1)}% overall
+          <div className="text-xs text-base-content/60 mt-1 leading-tight">
+            {gainLossPercentage >= 0 ? '+' : ''}{gainLossPercentage.toFixed(1)}%
           </div>
         </div>
       </div>
