@@ -17,7 +17,7 @@ const PortfolioSummary: FC = () => {
 
     if (sips && sips.length > 0) {
       sips.forEach((sip) => {
-        const installmentsPaid = calculateInstallmentsPaid(sip.start_date);
+        const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
         totalInvested += calculateTotalInvested(sip.amount, installmentsPaid);
         expectedValue += calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
       });

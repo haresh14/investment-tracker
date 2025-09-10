@@ -1,8 +1,9 @@
 import type { FC } from 'react';
 import { useState, useMemo } from 'react';
-import { useSIPs, useDeleteSIP } from '../hooks/useSIPs';
+import { useSIPs, useDeleteSIP, usePauseSIP, useResumeSIP } from '../hooks/useSIPs';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
+import PauseSIPForm from './PauseSIPForm';
 import type { SIP } from '../types';
 
 type SortField = 'name' | 'start_date' | 'amount' | 'annual_return' | 'installments' | 'total_invested' | 'expected_value';
@@ -12,28 +13,57 @@ interface SIPRowProps {
   sip: SIP;
   onEdit: (sip: SIP) => void;
   onDelete: (id: string) => void;
+  onPause: (sip: SIP) => void;
+  onResume: (sip: SIP) => void;
 }
 
-const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete }) => {
-  const installmentsPaid = calculateInstallmentsPaid(sip.start_date);
+const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume }) => {
+  const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
 
   return (
     <>
       {/* Desktop Table Row */}
-      <tr className="hidden lg:table-row hover:bg-base-200/50">
-        <td className="font-medium">{sip.name}</td>
+      <tr className={`hidden lg:table-row hover:bg-base-200/50 ${sip.is_paused ? 'opacity-60' : ''}`}>
+        <td className="font-medium">
+          <div className="flex items-center gap-2">
+            {sip.name}
+            {sip.is_paused && (
+              <div className="badge badge-warning badge-xs">Paused</div>
+            )}
+          </div>
+        </td>
         <td>{new Date(sip.start_date).toLocaleDateString('en-IN')}</td>
         <td>{installmentsPaid}</td>
         <td className="text-info font-medium">{formatCurrency(totalInvested)}</td>
         <td className="text-success font-medium">{formatCurrency(expectedValue)}</td>
         <td>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
+            {sip.is_paused ? (
+              <button 
+                className="btn btn-ghost btn-xs text-success" 
+                onClick={() => onResume(sip)}
+                aria-label="Resume SIP"
+                title="Resume SIP"
+              >
+                ▶️
+              </button>
+            ) : (
+              <button 
+                className="btn btn-ghost btn-xs text-warning" 
+                onClick={() => onPause(sip)}
+                aria-label="Pause SIP"
+                title="Pause SIP"
+              >
+                ⏸️
+              </button>
+            )}
             <button 
               className="btn btn-ghost btn-xs" 
               onClick={() => onEdit(sip)}
               aria-label="Edit SIP"
+              title="Edit SIP"
             >
               ✏️
             </button>
@@ -41,6 +71,7 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete }) => {
               className="btn btn-ghost btn-xs text-error" 
               onClick={() => onDelete(sip.id)}
               aria-label="Delete SIP"
+              title="Delete SIP"
             >
               🗑️
             </button>
@@ -51,16 +82,38 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete }) => {
       {/* Mobile Card View */}
       <tr className="lg:hidden">
         <td colSpan={6} className="p-0">
-          <div className="card bg-base-50 border border-base-200 mb-3">
+          <div className={`card bg-base-50 border border-base-200 mb-3 ${sip.is_paused ? 'opacity-60' : ''}`}>
             <div className="card-body p-4">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-semibold text-base-content">{sip.name}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-base-content">{sip.name}</h3>
+                    {sip.is_paused && (
+                      <div className="badge badge-warning badge-xs">Paused</div>
+                    )}
+                  </div>
                   <p className="text-sm text-base-content/60">
                     Started: {new Date(sip.start_date).toLocaleDateString('en-IN')}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
+                  {sip.is_paused ? (
+                    <button 
+                      className="btn btn-ghost btn-xs text-success" 
+                      onClick={() => onResume(sip)}
+                      aria-label="Resume SIP"
+                    >
+                      ▶️
+                    </button>
+                  ) : (
+                    <button 
+                      className="btn btn-ghost btn-xs text-warning" 
+                      onClick={() => onPause(sip)}
+                      aria-label="Pause SIP"
+                    >
+                      ⏸️
+                    </button>
+                  )}
                   <button 
                     className="btn btn-ghost btn-xs" 
                     onClick={() => onEdit(sip)}
@@ -111,7 +164,10 @@ interface SIPListProps {
 const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
   const { data: sips, isLoading, error } = useSIPs();
   const deleteSIP = useDeleteSIP();
+  const pauseSIP = usePauseSIP();
+  const resumeSIP = useResumeSIP();
   const [editingSIP, setEditingSIP] = useState<SIP | null>(null);
+  const [pausingSIP, setPausingSIP] = useState<SIP | null>(null);
   const [sortField, setSortField] = useState<SortField>('total_invested');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -140,16 +196,16 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
           bValue = b.annual_return;
           break;
         case 'installments':
-          aValue = calculateInstallmentsPaid(a.start_date);
-          bValue = calculateInstallmentsPaid(b.start_date);
+          aValue = calculateInstallmentsPaid(a.start_date, a.pause_date, a.is_paused);
+          bValue = calculateInstallmentsPaid(b.start_date, b.pause_date, b.is_paused);
           break;
         case 'total_invested':
-          aValue = calculateTotalInvested(a.amount, calculateInstallmentsPaid(a.start_date));
-          bValue = calculateTotalInvested(b.amount, calculateInstallmentsPaid(b.start_date));
+          aValue = calculateTotalInvested(a.amount, calculateInstallmentsPaid(a.start_date, a.pause_date, a.is_paused));
+          bValue = calculateTotalInvested(b.amount, calculateInstallmentsPaid(b.start_date, b.pause_date, b.is_paused));
           break;
         case 'expected_value':
-          aValue = calculateExpectedValue(a.amount, a.annual_return, calculateInstallmentsPaid(a.start_date));
-          bValue = calculateExpectedValue(b.amount, b.annual_return, calculateInstallmentsPaid(b.start_date));
+          aValue = calculateExpectedValue(a.amount, a.annual_return, calculateInstallmentsPaid(a.start_date, a.pause_date, a.is_paused));
+          bValue = calculateExpectedValue(b.amount, b.annual_return, calculateInstallmentsPaid(b.start_date, b.pause_date, b.is_paused));
           break;
         default:
           return 0;
@@ -191,6 +247,24 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
 
   const handleCloseEdit = () => {
     setEditingSIP(null);
+  };
+
+  const handlePause = (sip: SIP) => {
+    setPausingSIP(sip);
+  };
+
+  const handleClosePause = () => {
+    setPausingSIP(null);
+  };
+
+  const handleResume = async (sip: SIP) => {
+    if (window.confirm(`Are you sure you want to resume "${sip.name}"? Installments will continue from today.`)) {
+      try {
+        await resumeSIP.mutateAsync(sip.id);
+      } catch (error) {
+        console.error('Failed to resume SIP:', error);
+      }
+    }
   };
 
   if (isLoading) {
@@ -308,6 +382,8 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     sip={sip}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onPause={handlePause}
+                    onResume={handleResume}
                   />
                 ))}
               </tbody>
@@ -319,6 +395,12 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
         {editingSIP && (
           <EditSIPForm sip={editingSIP} onClose={handleCloseEdit} />
         )}
+
+        {/* Pause SIP Modal */}
+        {pausingSIP && (
+          <PauseSIPForm sip={pausingSIP} onClose={handleClosePause} />
+        )}
+
       </div>
     </div>
   );

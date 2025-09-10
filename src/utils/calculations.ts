@@ -2,11 +2,27 @@ import { differenceInMonths, parseISO } from 'date-fns';
 
 /**
  * Calculate the number of installments paid based on start date
+ * Accounts for pause functionality
  */
-export const calculateInstallmentsPaid = (startDate: string): number => {
+export const calculateInstallmentsPaid = (
+  startDate: string, 
+  pauseDate?: string | null, 
+  isPaused: boolean = false
+): number => {
   const start = parseISO(startDate);
   const now = new Date();
-  const months = differenceInMonths(now, start);
+  
+  // Determine the end date for calculation
+  let endDate = now;
+  if (isPaused && pauseDate) {
+    endDate = parseISO(pauseDate);
+    // If pause date is before start date, no installments paid
+    if (endDate < start) {
+      return 0;
+    }
+  }
+  
+  const months = differenceInMonths(endDate, start);
   return Math.max(0, months + 1); // +1 to include the current month
 };
 

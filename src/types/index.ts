@@ -7,6 +7,8 @@ export interface SIP {
   user_id: string;
   created_at?: string;
   updated_at?: string;
+  pause_date?: string | null;
+  is_paused: boolean;
 }
 
 export interface Withdrawal {

@@ -96,3 +96,33 @@ export const useDeleteSIP = () => {
     },
   });
 };
+
+export const usePauseSIP = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, pauseDate }: { id: string; pauseDate: string }) => 
+      sipAPI.updateSIP(id, { 
+        is_paused: true, 
+        pause_date: pauseDate
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sips'] });
+    },
+  });
+};
+
+export const useResumeSIP = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => 
+      sipAPI.updateSIP(id, { 
+        is_paused: false, 
+        pause_date: null
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sips'] });
+    },
+  });
+};
