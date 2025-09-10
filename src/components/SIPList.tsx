@@ -2,13 +2,13 @@ import type { FC } from 'react';
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSIPs, useDeleteSIP, useResumeSIP } from '../hooks/useSIPs';
-import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked } from '../utils/calculations';
+import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked, calculateOverallExpectedPercentage } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
 import PauseSIPForm from './PauseSIPForm';
 import ContextMenu, { type ContextMenuItem, type ContextMenuRef } from './ContextMenu';
 import type { SIP } from '../types';
 
-type SortField = 'name' | 'start_date' | 'amount' | 'annual_return' | 'installments' | 'total_invested' | 'expected_value';
+type SortField = 'name' | 'start_date' | 'amount' | 'annual_return' | 'installments' | 'total_invested' | 'expected_value' | 'overall_expected_percentage';
 type SortDirection = 'asc' | 'desc';
 
 interface SIPRowProps {
@@ -27,6 +27,7 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
   const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
+  const overallExpectedPercentage = calculateOverallExpectedPercentage(sip.start_date, sip.annual_return, sip.pause_date, sip.is_paused);
   const isLocked = isSIPLocked(sip.start_date, sip.lock_period_months);
   const { availableAmount, lockedAmount } = calculateAvailableWithdrawal(
     sip.start_date,
@@ -114,6 +115,11 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
           <td className="w-16 text-center">{installmentsPaid}</td>
           <td className="w-24 text-info font-medium text-sm">{formatCurrency(totalInvested)}</td>
           <td className="w-24 text-success font-medium text-sm">{formatCurrency(expectedValue)}</td>
+          <td className="w-20 text-center">
+            <span className={`font-medium text-sm ${overallExpectedPercentage >= 0 ? 'text-success' : 'text-error'}`}>
+              {overallExpectedPercentage.toFixed(2)}%
+            </span>
+          </td>
           <td className="w-28">
             <div className="text-xs">
               <div className="text-success font-medium">{formatCurrency(availableAmount)}</div>
@@ -221,6 +227,12 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                   <p className="font-medium text-success">{formatCurrency(expectedValue)}</p>
                 </div>
                 <div>
+                  <p className="text-base-content/60">Overall Expected %</p>
+                  <p className={`font-medium ${overallExpectedPercentage >= 0 ? 'text-success' : 'text-error'}`}>
+                    {overallExpectedPercentage.toFixed(2)}%
+                  </p>
+                </div>
+                <div>
                   <p className="text-base-content/60">Available</p>
                   <div>
                     <p className="font-medium text-success">{formatCurrency(availableAmount)}</p>
@@ -293,6 +305,10 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
         case 'expected_value':
           aValue = calculateExpectedValue(a.amount, a.annual_return, calculateInstallmentsPaid(a.start_date, a.pause_date, a.is_paused));
           bValue = calculateExpectedValue(b.amount, b.annual_return, calculateInstallmentsPaid(b.start_date, b.pause_date, b.is_paused));
+          break;
+        case 'overall_expected_percentage':
+          aValue = calculateOverallExpectedPercentage(a.start_date, a.annual_return, a.pause_date, a.is_paused);
+          bValue = calculateOverallExpectedPercentage(b.start_date, b.annual_return, b.pause_date, b.is_paused);
           break;
         default:
           return 0;
@@ -461,6 +477,14 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                   >
                     <div className="flex items-center gap-2">
                       Expected Value {getSortIcon('expected_value')}
+                    </div>
+                  </th>
+                  <th 
+                    className="cursor-pointer hover:bg-base-200 select-none w-20"
+                    onClick={() => handleSort('overall_expected_percentage')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Overall Expected % {getSortIcon('overall_expected_percentage')}
                     </div>
                   </th>
                   <th className="w-28">Available for Withdrawal</th>
