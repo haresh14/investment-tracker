@@ -387,6 +387,43 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - [ ] Test production build
 - [ ] Update README with new features
 
+### Phase 21: Overall Expected % Column ✅
+**Status**: ✅ COMPLETED
+- [x] Add Overall Expected % calculation function
+- [x] Implement time-weighted return calculation
+- [x] Add new column to SIP list table (desktop)
+- [x] Add new field to SIP mobile card view
+- [x] Implement sorting functionality for new column
+- [x] Add color coding for positive/negative returns
+- [x] Test calculation accuracy with various scenarios
+
+**Overall Expected % Feature:**
+This feature calculates the actual percentage return achieved so far based on the time each installment has been invested, providing users with realistic performance expectations.
+
+**Calculation Logic:**
+```typescript
+// For each installment, calculate time-weighted return:
+// Example: 15% annual return SIP with 6 installments over 6 months
+// Installment 1 (6 months old): (1 + 0.15)^(6/12) - 1 = 7.24%
+// Installment 2 (5 months old): (1 + 0.15)^(5/12) - 1 = 6.07%
+// Installment 3 (4 months old): (1 + 0.15)^(4/12) - 1 = 4.91%
+// Installment 4 (3 months old): (1 + 0.15)^(3/12) - 1 = 3.75%
+// Installment 5 (2 months old): (1 + 0.15)^(2/12) - 1 = 2.60%
+// Installment 6 (1 month old):  (1 + 0.15)^(1/12) - 1 = 1.17%
+// Average Expected Return = (7.24 + 6.07 + 4.91 + 3.75 + 2.60 + 1.17) / 6 = 4.29%
+```
+
+**Sub-tasks for Overall Expected %:**
+- [x] Create calculateOverallExpectedPercentage utility function
+- [x] Add time-weighted return calculation logic
+- [x] Update SIP list table header with new sortable column
+- [x] Add percentage display to desktop table rows
+- [x] Update mobile card layout with new field
+- [x] Implement sorting logic for overall expected percentage
+- [x] Add color coding (green for positive, red for negative)
+- [x] Test with various SIP scenarios (new, old, paused)
+- [x] Add comprehensive JSDoc documentation with examples
+
 ## Testing Instructions per Phase
 
 ### Phase 2 Testing:
@@ -522,6 +559,16 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 4. Check all features in production environment
 5. Test with various data scenarios
 
+### Phase 21 Testing:
+1. Test Overall Expected % calculation accuracy with known scenarios
+2. Verify new column displays correctly in desktop table view
+3. Check mobile card view includes new percentage field
+4. Test sorting functionality for Overall Expected % column
+5. Verify color coding (green/red) works for positive/negative returns
+6. Test with edge cases (new SIPs, paused SIPs, zero installments)
+7. Confirm percentage precision (2 decimal places)
+8. Test time-weighted calculations with various time periods
+
 ## Current Status: Phase 16 - SIP Status Management 🔄
 
 **Completed Phases:**
@@ -549,6 +596,7 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - ✅ **Phase 17**: Enhanced UX with context menus and clickable rows - COMPLETED
 - ✅ **Phase 18**: Page reorganization with dedicated Withdrawals page - COMPLETED
 - ✅ **Phase 19**: Modern header redesign with responsive navigation - COMPLETED
+- ✅ **Phase 21**: Overall Expected % column for SIP performance tracking - COMPLETED
 - **Phase 20**: Comprehensive testing and deployment
 
 **🎉 Major Accomplishments:**
@@ -567,6 +615,7 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - ✅ **SIP Detail Views**: Complete transaction history with installment-wise breakdown
 - ✅ **Locking Period**: Withdrawal restrictions with available vs locked amount calculations
 - ✅ **SIP Status Management**: Active/inactive/completed status with portfolio exclusion
+- ✅ **Overall Expected % Tracking**: Time-weighted return calculations for realistic performance metrics
 - ✅ **Production Deployment**: Complete deployment guide with Supabase configuration
 
 **🚀 Core MVP Features (100% Complete):**
