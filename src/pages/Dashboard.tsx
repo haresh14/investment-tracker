@@ -54,7 +54,9 @@ const Dashboard: FC = () => {
       <PortfolioSummary />
 
       {/* SIP List */}
-      <SIPList onAddSIP={handleAddSIP} />
+      <div className="mt-8">
+        <SIPList onAddSIP={handleAddSIP} />
+      </div>
 
       {/* Withdrawal List */}
       <div className="mt-8">
