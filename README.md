@@ -53,8 +53,10 @@ A lightweight personal finance tool for tracking SIP (Systematic Investment Plan
    ```
 
 4. **Set up database schema**
-   - Run the SQL script from `supabase-setup.sql` in your Supabase SQL editor
-   - This creates the required tables, indexes, and Row Level Security policies
+   - Go to your Supabase project dashboard → SQL Editor
+   - Copy and paste the contents of `migrations/run_all_migrations.sql`
+   - Execute the script to create all required tables, indexes, and security policies
+   - See `migrations/README.md` for detailed migration instructions
 
 5. **Start the development server**
    ```bash
@@ -88,17 +90,52 @@ All core MVP features are complete and tested. The app is ready for production d
 - Advanced analytics
 - Data export features
 
+## Database Setup
+
+The application uses Supabase PostgreSQL with the following schema:
+
+### Tables
+- **sips**: SIP investment records with pause and locking functionality
+- **withdrawals**: Withdrawal transaction records linked to SIPs
+
+### Key Features
+- **Row Level Security (RLS)**: Users can only access their own data
+- **Pause Functionality**: Temporarily pause SIP calculations
+- **Locking Period**: Set withdrawal restrictions for specific periods
+- **Automatic Timestamps**: Created/updated timestamps with triggers
+
+### Migration Files
+All database migrations are located in the `migrations/` folder:
+- `run_all_migrations.sql` - Complete setup script (recommended)
+- `001_initial_setup.sql` - Base tables and security
+- `002_add_pause_functionality.sql` - SIP pause feature
+- `003_add_locking_period.sql` - Investment locking feature
+
+For detailed migration instructions, see `migrations/README.md`.
+
 ## Project Structure
 
 ```
-src/
-├── components/         # Reusable UI components
-├── pages/             # Page components
-├── hooks/             # Custom React hooks
-├── utils/             # Utility functions
-├── lib/               # Library configurations
-├── types/             # TypeScript type definitions
-└── main.tsx           # App entry point
+investment-tracker/
+├── src/
+│   ├── components/         # Reusable UI components
+│   ├── pages/             # Page components  
+│   ├── hooks/             # Custom React hooks
+│   ├── utils/             # Utility functions
+│   ├── lib/               # Library configurations
+│   ├── types/             # TypeScript type definitions
+│   └── main.tsx           # App entry point
+├── migrations/            # Database migration files
+│   ├── run_all_migrations.sql     # Complete setup script
+│   ├── 001_initial_setup.sql      # Base schema
+│   ├── 002_add_pause_functionality.sql
+│   ├── 003_add_locking_period.sql
+│   └── README.md          # Migration instructions
+├── docs/                  # Documentation
+│   ├── DEVELOPMENT_PLAN.md
+│   ├── PRD.md
+│   └── CONTEXT.md
+└── README.md              # This file
 ```
 
 ## Key Formulas

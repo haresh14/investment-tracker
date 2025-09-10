@@ -251,6 +251,10 @@ ALTER TABLE sips ADD COLUMN is_paused BOOLEAN DEFAULT FALSE;
 - [x] Show lock end dates and availability percentages
 
 **Database Schema Updates:**
+All database migrations are now organized in the `migrations/` folder:
+- `run_all_migrations.sql` - Complete setup script
+- `003_add_locking_period.sql` - Locking period migration
+
 ```sql
 -- Add locking period to sips table
 ALTER TABLE sips ADD COLUMN lock_period_months INTEGER DEFAULT 0;
@@ -453,8 +457,28 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 - ✅ Implemented advanced SIP list with sortable table and mobile-friendly cards
 - ✅ Fixed spacing consistency across all dashboard sections
 
+## Database Migrations
+
+All database schema changes have been organized into sequential migration files in the `migrations/` folder:
+
+### Migration Files
+1. **`001_initial_setup.sql`** - Base database schema with SIPs and withdrawals tables
+2. **`002_add_pause_functionality.sql`** - Adds pause/resume functionality to SIPs  
+3. **`003_add_locking_period.sql`** - Adds locking period feature for withdrawal restrictions
+
+### Quick Setup
+- **New installations**: Run `migrations/run_all_migrations.sql` (contains all migrations)
+- **Existing installations**: Run individual migration files in sequence
+- **Documentation**: See `migrations/README.md` for detailed instructions
+
+### Migration History
+- **Phase 1-12**: Initial setup and core features (`001_initial_setup.sql`)
+- **Phase 13**: SIP pause functionality (`002_add_pause_functionality.sql`)
+- **Phase 15**: Locking period feature (`003_add_locking_period.sql`)
+
 ## Notes
 - Each phase should be completed and tested before moving to the next
 - Regular commits after each sub-task completion
 - Update this document as progress is made
 - Focus on mobile-first responsive design throughout
+- All database changes are tracked in sequential migration files
