@@ -326,13 +326,13 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - [ ] Implement touch gestures for mobile interactions
 - [ ] Add visual feedback for interactive elements
 
-### Phase 18: Page Structure Reorganization 📋
-**Status**: 📋 PLANNED
-- [ ] Create separate Withdrawals page
-- [ ] Remove withdrawals from main dashboard
-- [ ] Implement proper page navigation
-- [ ] Update routing structure
-- [ ] Create page-specific layouts
+### Phase 18: Page Structure Reorganization ✅
+**Status**: ✅ COMPLETED
+- [x] Create separate Withdrawals page
+- [x] Remove withdrawals from main dashboard
+- [x] Implement proper page navigation
+- [x] Update routing structure
+- [x] Create page-specific layouts
 
 **New Page Structure:**
 - **Dashboard**: Portfolio summary + SIP list only
@@ -540,13 +540,13 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - ✅ **Phase 14**: SIP Detail View & Transaction History (Complete SIP details with installment history)
 - ✅ **Phase 15**: Locking Period & Available Withdrawal (Withdrawal restrictions and availability calculations)
 
-**Current Phase**: Phase 17 - Enhanced UX & Navigation
-**Next Action**: Create reusable context menu component and implement clickable row navigation
+**Current Phase**: Phase 19 - Header & Navigation Redesign
+**Next Action**: Create modern, responsive header with improved navigation and user experience
 
 **🚀 Upcoming Enhanced Features:**
 - ✅ **Phase 16**: SIP status management (active/inactive/completed) - COMPLETED
-- **Phase 17**: Enhanced UX with context menus and clickable rows
-- **Phase 18**: Page reorganization with dedicated Withdrawals page
+- ✅ **Phase 17**: Enhanced UX with context menus and clickable rows - COMPLETED
+- ✅ **Phase 18**: Page reorganization with dedicated Withdrawals page - COMPLETED
 - **Phase 19**: Modern header redesign with responsive navigation
 - **Phase 20**: Comprehensive testing and deployment
 
