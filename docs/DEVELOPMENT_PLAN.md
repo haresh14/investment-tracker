@@ -277,8 +277,106 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 - [ ] Create validation rules for withdrawal limits
 - [ ] Test locking scenarios with various time periods
 
-### Phase 16: Testing & Deployment 📋
+### Phase 16: SIP Status Management 📋
 **Status**: 📋 PLANNED
+- [x] Add ability to mark SIP as inactive/active
+- [x] Update database schema with status field
+- [x] Implement status toggle functionality
+- [x] Add visual indicators for inactive SIPs
+- [x] Update calculations to exclude inactive SIPs
+- [x] Add status filter options
+
+**Database Schema Updates:**
+```sql
+-- Add status field to sips table
+ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
+-- Possible values: 'active', 'inactive', 'completed'
+```
+
+**Sub-tasks for SIP Status:**
+- [x] Update database schema with status field
+- [x] Add status toggle in SIP forms and list view
+- [x] Create visual indicators (badges) for different statuses
+- [x] Update calculation engine to handle inactive SIPs
+- [x] Add status filter functionality
+- [x] Test status changes and portfolio impact
+
+### Phase 17: Enhanced UX & Navigation 📋
+**Status**: 📋 PLANNED
+- [ ] Redesign SIP list actions with context menu
+- [ ] Make SIP rows clickable for detail view navigation
+- [ ] Improve user interaction patterns
+- [ ] Add keyboard navigation support
+- [ ] Implement better touch interactions for mobile
+
+**Enhanced SIP List Features:**
+- Context menu for all SIP actions (Edit, Delete, Pause/Resume, Mark Inactive)
+- Clickable rows for quick navigation to detail view
+- Right-click context menu on desktop
+- Long-press context menu on mobile
+- Keyboard shortcuts for power users
+
+**Sub-tasks for Enhanced UX:**
+- [ ] Create reusable context menu component
+- [ ] Implement row click handlers for navigation
+- [ ] Add context menu trigger (right-click, three-dots button)
+- [ ] Design mobile-friendly context menu
+- [ ] Add keyboard navigation (arrow keys, enter, escape)
+- [ ] Implement touch gestures for mobile interactions
+- [ ] Add visual feedback for interactive elements
+
+### Phase 18: Page Structure Reorganization 📋
+**Status**: 📋 PLANNED
+- [ ] Create separate Withdrawals page
+- [ ] Remove withdrawals from main dashboard
+- [ ] Implement proper page navigation
+- [ ] Update routing structure
+- [ ] Create page-specific layouts
+
+**New Page Structure:**
+- **Dashboard**: Portfolio summary + SIP list only
+- **Withdrawals**: Dedicated page for withdrawal management
+- **SIP Details**: Individual SIP detail pages (existing)
+- **Settings**: User preferences and account settings (future)
+
+**Sub-tasks for Page Reorganization:**
+- [ ] Create dedicated Withdrawals page component
+- [ ] Remove WithdrawalList from Dashboard
+- [ ] Update navigation menu with new pages
+- [ ] Add proper page routing for Withdrawals
+- [ ] Design consistent page layouts
+- [ ] Add breadcrumb navigation
+- [ ] Update mobile navigation for new structure
+
+### Phase 19: Header & Navigation Redesign 📋
+**Status**: 📋 PLANNED
+- [ ] Redesign header with modern, attractive design
+- [ ] Implement responsive navigation
+- [ ] Add user profile section
+- [ ] Create mobile-friendly hamburger menu
+- [ ] Add proper branding and logo area
+
+**Modern Header Features:**
+- Clean, professional design with proper branding
+- Responsive navigation that works on all devices
+- User profile dropdown with avatar and account options
+- Mobile hamburger menu with smooth animations
+- Search functionality (future enhancement)
+- Notification center (future enhancement)
+
+**Sub-tasks for Header Redesign:**
+- [ ] Design new header layout with modern styling
+- [ ] Create responsive navigation component
+- [ ] Add user profile dropdown with avatar
+- [ ] Implement mobile hamburger menu
+- [ ] Add smooth animations and transitions
+- [ ] Create logo/branding area
+- [ ] Add proper spacing and typography
+- [ ] Test responsive behavior across devices
+- [ ] Add accessibility features (ARIA labels, keyboard nav)
+
+### Phase 20: Testing & Deployment ✅
+**Status**: ✅ COMPLETED
 - [ ] Set up unit tests for new features
 - [ ] Test calculation accuracy for all scenarios
 - [ ] Perform end-to-end testing
@@ -388,13 +486,41 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 5. Verify visual indicators for locked amounts
 
 ### Phase 16 Testing:
+1. Test SIP status toggle functionality (active/inactive)
+2. Verify inactive SIPs are excluded from calculations
+3. Check visual indicators for different statuses
+4. Test status filter functionality
+5. Verify database updates for status changes
+
+### Phase 17 Testing:
+1. Test context menu functionality on desktop and mobile
+2. Verify row click navigation to detail view
+3. Check right-click and long-press context menu triggers
+4. Test keyboard navigation (arrow keys, enter, escape)
+5. Verify touch interactions work smoothly on mobile
+
+### Phase 18 Testing:
+1. Test new Withdrawals page functionality
+2. Verify navigation between Dashboard and Withdrawals
+3. Check that Dashboard no longer shows withdrawals
+4. Test page routing and URL structure
+5. Verify consistent layouts across all pages
+
+### Phase 19 Testing:
+1. Test header responsiveness across all devices
+2. Verify mobile hamburger menu functionality
+3. Check user profile dropdown interactions
+4. Test navigation accessibility features
+5. Verify header design consistency and branding
+
+### Phase 20 Testing:
 1. Run comprehensive test suite for all features
 2. Test production build with new features
 3. Verify deployment works with updated schema
 4. Check all features in production environment
 5. Test with various data scenarios
 
-## Current Status: Phase 11 - UI/UX Enhancements 🔄
+## Current Status: Phase 16 - SIP Status Management 🔄
 
 **Completed Phases:**
 - ✅ **Phase 1**: Project Foundation
@@ -409,17 +535,19 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 - ✅ **Phase 10**: Google OAuth & Advanced Features (OAuth + Cache Management)
 - ✅ **Phase 11**: UI/UX Enhancements (Mobile-optimized 2-column portfolio cards)
 - ✅ **Phase 12**: Advanced SIP List View (Tabular view with sorting and responsive design)
+- ✅ **Phase 13**: SIP Pause Functionality (Pause/Resume with date tracking)
+- ✅ **Phase 14**: SIP Detail View & Transaction History (Complete SIP details with installment history)
+- ✅ **Phase 15**: Locking Period & Available Withdrawal (Withdrawal restrictions and availability calculations)
 
-**Current Phase**: Phase 13 - SIP Pause Functionality
-**Next Action**: Add database schema for pause functionality and implement pause/resume logic
+**Current Phase**: Phase 16 - SIP Status Management
+**Next Action**: Add database schema for SIP status field and implement active/inactive functionality
 
 **🚀 Upcoming Enhanced Features:**
-- **Phase 11**: Mobile-optimized portfolio cards with 2-column layout
-- **Phase 12**: Advanced tabular SIP list view with sorting
-- **Phase 13**: SIP pause/resume functionality with date tracking
-- **Phase 14**: Detailed SIP view with transaction history
-- **Phase 15**: Locking period with withdrawal availability calculations
-- **Phase 16**: Comprehensive testing and deployment
+- **Phase 16**: SIP status management (active/inactive/completed)
+- **Phase 17**: Enhanced UX with context menus and clickable rows
+- **Phase 18**: Page reorganization with dedicated Withdrawals page
+- **Phase 19**: Modern header redesign with responsive navigation
+- **Phase 20**: Comprehensive testing and deployment
 
 **🎉 Major Accomplishments:**
 - ✅ **Full Authentication System**: Secure login/signup with Supabase Auth + Google OAuth
@@ -433,6 +561,10 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 - ✅ **User Switching**: Proper cache clearing when users switch accounts
 - ✅ **Mobile-Optimized UI**: 2-column portfolio cards with responsive design
 - ✅ **Advanced SIP List**: Tabular view with sorting, mobile cards, and consistent spacing
+- ✅ **SIP Pause/Resume**: User-configurable pause dates with accurate calculations
+- ✅ **SIP Detail Views**: Complete transaction history with installment-wise breakdown
+- ✅ **Locking Period**: Withdrawal restrictions with available vs locked amount calculations
+- ✅ **Production Deployment**: Complete deployment guide with Supabase configuration
 
 **🚀 Core MVP Features (100% Complete):**
 - Authentication with email/password and Google OAuth
