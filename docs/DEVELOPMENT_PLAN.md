@@ -301,13 +301,14 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - [x] Add status filter functionality
 - [x] Test status changes and portfolio impact
 
-### Phase 17: Enhanced UX & Navigation 📋
-**Status**: 📋 PLANNED
-- [ ] Redesign SIP list actions with context menu
-- [ ] Make SIP rows clickable for detail view navigation
-- [ ] Improve user interaction patterns
-- [ ] Add keyboard navigation support
-- [ ] Implement better touch interactions for mobile
+### Phase 17: Enhanced UX & Navigation ✅
+**Status**: ✅ COMPLETED
+- [x] Redesign SIP list actions with context menu
+- [x] Make SIP rows clickable for detail view navigation
+- [x] Improve user interaction patterns
+- [x] Add keyboard navigation support
+- [x] Implement better touch interactions for mobile
+- [x] Fix three-dots button visibility and functionality
 
 **Enhanced SIP List Features:**
 - Context menu for all SIP actions (Edit, Delete, Pause/Resume, Mark Inactive)

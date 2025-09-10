@@ -1,10 +1,11 @@
 import type { FC } from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSIPs, useDeleteSIP, useResumeSIP } from '../hooks/useSIPs';
 import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
 import PauseSIPForm from './PauseSIPForm';
+import ContextMenu, { type ContextMenuItem, type ContextMenuRef } from './ContextMenu';
 import type { SIP } from '../types';
 
 type SortField = 'name' | 'start_date' | 'amount' | 'annual_return' | 'installments' | 'total_invested' | 'expected_value';
@@ -20,6 +21,9 @@ interface SIPRowProps {
 }
 
 const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onViewDetails }) => {
+  const desktopContextMenuRef = useRef<ContextMenuRef>(null);
+  const mobileContextMenuRef = useRef<ContextMenuRef>(null);
+  
   const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
@@ -33,155 +37,175 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
     sip.is_paused
   );
 
+  // Create context menu items
+  const contextMenuItems: ContextMenuItem[] = [
+    {
+      id: 'view-details',
+      label: 'View Details',
+      icon: '👁️',
+      onClick: () => onViewDetails(sip.id)
+    },
+    {
+      id: 'edit',
+      label: 'Edit SIP',
+      icon: '✏️',
+      onClick: () => onEdit(sip)
+    },
+    {
+      id: 'pause-resume',
+      label: sip.is_paused ? 'Resume SIP' : 'Pause SIP',
+      icon: sip.is_paused ? '▶️' : '⏸️',
+      onClick: () => sip.is_paused ? onResume(sip) : onPause(sip)
+    },
+    {
+      id: 'delete',
+      label: 'Delete SIP',
+      icon: '🗑️',
+      onClick: () => onDelete(sip.id),
+      variant: 'danger' as const
+    }
+  ];
+
+  // Handle row click to navigate to details
+  const handleRowClick = (e: React.MouseEvent) => {
+    if (!e) return;
+    
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target?.closest('button') || target?.closest('[role="button"]')) {
+      return;
+    }
+    onViewDetails(sip.id);
+  };
+
   return (
     <>
       {/* Desktop Table Row */}
-      <tr className={`hidden lg:table-row hover:bg-base-200/50 ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}>
-        <td className="font-medium">
-          <div className="flex items-center gap-2">
-            {sip.name}
-            {sip.status === 'inactive' && (
-              <div className="badge badge-error badge-xs">Inactive</div>
-            )}
-            {sip.status === 'completed' && (
-              <div className="badge badge-success badge-xs">Completed</div>
-            )}
-            {sip.is_paused && (
-              <div className="badge badge-warning badge-xs">Paused</div>
-            )}
-            {isLocked && (
-              <div className="badge badge-info badge-xs">🔒 Locked</div>
-            )}
-          </div>
-        </td>
-        <td>{new Date(sip.start_date).toLocaleDateString('en-IN')}</td>
-        <td>{installmentsPaid}</td>
-        <td className="text-info font-medium">{formatCurrency(totalInvested)}</td>
-        <td className="text-success font-medium">{formatCurrency(expectedValue)}</td>
-        <td>
-          <div className="text-sm">
-            <div className="text-success font-medium">{formatCurrency(availableAmount)}</div>
-            {lockedAmount > 0 && (
-              <div className="text-warning text-xs">🔒 {formatCurrency(lockedAmount)} locked</div>
-            )}
-          </div>
-        </td>
-        <td>
-          <div className="flex gap-1">
-            {sip.is_paused ? (
-              <button 
-                className="btn btn-ghost btn-xs text-success" 
-                onClick={() => onResume(sip)}
-                aria-label="Resume SIP"
-                title="Resume SIP"
+      <ContextMenu 
+        ref={desktopContextMenuRef}
+        items={contextMenuItems} 
+        className="contents"
+      >
+        <tr 
+          className={`hidden lg:table-row hover:bg-base-200/50 cursor-pointer group ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}
+          onClick={handleRowClick}
+          title="Click to view details, right-click for more options"
+        >
+          <td className="font-medium w-1/4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="truncate">{sip.name}</span>
+              <div className="flex gap-1 flex-wrap">
+                {sip.status === 'inactive' && (
+                  <div className="badge badge-error badge-xs">Inactive</div>
+                )}
+                {sip.status === 'completed' && (
+                  <div className="badge badge-success badge-xs">Completed</div>
+                )}
+                {sip.is_paused && (
+                  <div className="badge badge-warning badge-xs">Paused</div>
+                )}
+                {isLocked && (
+                  <div className="badge badge-info badge-xs">🔒 Locked</div>
+                )}
+              </div>
+            </div>
+          </td>
+          <td className="w-20 text-sm">{new Date(sip.start_date).toLocaleDateString('en-IN')}</td>
+          <td className="w-16 text-center">{installmentsPaid}</td>
+          <td className="w-24 text-info font-medium text-sm">{formatCurrency(totalInvested)}</td>
+          <td className="w-24 text-success font-medium text-sm">{formatCurrency(expectedValue)}</td>
+          <td className="w-28">
+            <div className="text-xs">
+              <div className="text-success font-medium">{formatCurrency(availableAmount)}</div>
+              {lockedAmount > 0 && (
+                <div className="text-warning text-xs">🔒 {formatCurrency(lockedAmount)} locked</div>
+              )}
+            </div>
+          </td>
+          <td className="w-16">
+            <div className="flex justify-center">
+              <button
+                className="btn btn-ghost btn-xs"
+                onClick={(e) => {
+                  if (!e) return;
+                  e.stopPropagation();
+                  if (desktopContextMenuRef.current) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    desktopContextMenuRef.current.openMenu(
+                      rect.right - 200,
+                      rect.bottom + 4
+                    );
+                  }
+                }}
+                aria-label="More actions"
+                title="More actions"
               >
-                ▶️
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
               </button>
-            ) : (
-              <button 
-                className="btn btn-ghost btn-xs text-warning" 
-                onClick={() => onPause(sip)}
-                aria-label="Pause SIP"
-                title="Pause SIP"
-              >
-                ⏸️
-              </button>
-            )}
-            <button 
-              className="btn btn-ghost btn-xs text-info" 
-              onClick={() => onViewDetails(sip.id)}
-              aria-label="View SIP Details"
-              title="View Details"
-            >
-              👁️
-            </button>
-            <button 
-              className="btn btn-ghost btn-xs" 
-              onClick={() => onEdit(sip)}
-              aria-label="Edit SIP"
-              title="Edit SIP"
-            >
-              ✏️
-            </button>
-            <button 
-              className="btn btn-ghost btn-xs text-error" 
-              onClick={() => onDelete(sip.id)}
-              aria-label="Delete SIP"
-              title="Delete SIP"
-            >
-              🗑️
-            </button>
-          </div>
-        </td>
-      </tr>
+            </div>
+          </td>
+        </tr>
+      </ContextMenu>
 
       {/* Mobile Card View */}
       <tr className="lg:hidden">
         <td colSpan={6} className="p-0">
-          <div className={`card bg-base-50 border border-base-200 mb-3 ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}>
-            <div className="card-body p-4">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-base-content">{sip.name}</h3>
-                    {sip.status === 'inactive' && (
-                      <div className="badge badge-error badge-xs">Inactive</div>
-                    )}
-                    {sip.status === 'completed' && (
-                      <div className="badge badge-success badge-xs">Completed</div>
-                    )}
-                    {sip.is_paused && (
-                      <div className="badge badge-warning badge-xs">Paused</div>
-                    )}
-                    {isLocked && (
-                      <div className="badge badge-info badge-xs">🔒 Locked</div>
-                    )}
+          <ContextMenu 
+            ref={mobileContextMenuRef}
+            items={contextMenuItems}
+          >
+            <div 
+              className={`card bg-base-50 border border-base-200 mb-3 cursor-pointer hover:bg-base-100 transition-colors group ${sip.is_paused || sip.status === 'inactive' ? 'opacity-60' : ''}`}
+              onClick={handleRowClick}
+              title="Tap to view details, long-press for more options"
+            >
+              <div className="card-body p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-base-content">{sip.name}</h3>
+                      {sip.status === 'inactive' && (
+                        <div className="badge badge-error badge-xs">Inactive</div>
+                      )}
+                      {sip.status === 'completed' && (
+                        <div className="badge badge-success badge-xs">Completed</div>
+                      )}
+                      {sip.is_paused && (
+                        <div className="badge badge-warning badge-xs">Paused</div>
+                      )}
+                      {isLocked && (
+                        <div className="badge badge-info badge-xs">🔒 Locked</div>
+                      )}
+                    </div>
+                    <p className="text-sm text-base-content/60">
+                      Started: {new Date(sip.start_date).toLocaleDateString('en-IN')}
+                    </p>
                   </div>
-                  <p className="text-sm text-base-content/60">
-                    Started: {new Date(sip.start_date).toLocaleDateString('en-IN')}
-                  </p>
-                </div>
-                <div className="flex gap-1">
-                  {sip.is_paused ? (
-                    <button 
-                      className="btn btn-ghost btn-xs text-success" 
-                      onClick={() => onResume(sip)}
-                      aria-label="Resume SIP"
+                  <div className="flex items-center">
+                    <button
+                      className="btn btn-ghost btn-xs"
+                      onClick={(e) => {
+                        if (!e) return;
+                        e.stopPropagation();
+                        if (mobileContextMenuRef.current) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          mobileContextMenuRef.current.openMenu(
+                            rect.right - 200,
+                            rect.bottom + 4
+                          );
+                        }
+                      }}
+                      aria-label="More actions"
+                      title="More actions"
                     >
-                      ▶️
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                      </svg>
                     </button>
-                  ) : (
-                    <button 
-                      className="btn btn-ghost btn-xs text-warning" 
-                      onClick={() => onPause(sip)}
-                      aria-label="Pause SIP"
-                    >
-                      ⏸️
-                    </button>
-                  )}
-                  <button 
-                    className="btn btn-ghost btn-xs text-info" 
-                    onClick={() => onViewDetails(sip.id)}
-                    aria-label="View SIP Details"
-                  >
-                    👁️
-                  </button>
-                  <button 
-                    className="btn btn-ghost btn-xs" 
-                    onClick={() => onEdit(sip)}
-                    aria-label="Edit SIP"
-                  >
-                    ✏️
-                  </button>
-                  <button 
-                    className="btn btn-ghost btn-xs text-error" 
-                    onClick={() => onDelete(sip.id)}
-                    aria-label="Delete SIP"
-                  >
-                    🗑️
-                  </button>
+                  </div>
                 </div>
-              </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
@@ -212,6 +236,7 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
               </div>
             </div>
           </div>
+          </ContextMenu>
         </td>
       </tr>
     </>
@@ -399,7 +424,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
               <thead className="hidden lg:table-header-group">
                 <tr>
                   <th 
-                    className="cursor-pointer hover:bg-base-200 select-none"
+                    className="cursor-pointer hover:bg-base-200 select-none w-1/4"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-2">
@@ -407,7 +432,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     </div>
                   </th>
                   <th 
-                    className="cursor-pointer hover:bg-base-200 select-none"
+                    className="cursor-pointer hover:bg-base-200 select-none w-20"
                     onClick={() => handleSort('start_date')}
                   >
                     <div className="flex items-center gap-2">
@@ -415,7 +440,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     </div>
                   </th>
                   <th 
-                    className="cursor-pointer hover:bg-base-200 select-none"
+                    className="cursor-pointer hover:bg-base-200 select-none w-16"
                     onClick={() => handleSort('installments')}
                   >
                     <div className="flex items-center gap-2">
@@ -423,7 +448,7 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     </div>
                   </th>
                   <th 
-                    className="cursor-pointer hover:bg-base-200 select-none"
+                    className="cursor-pointer hover:bg-base-200 select-none w-24"
                     onClick={() => handleSort('total_invested')}
                   >
                     <div className="flex items-center gap-2">
@@ -431,15 +456,15 @@ const SIPList: FC<SIPListProps> = ({ onAddSIP }) => {
                     </div>
                   </th>
                   <th 
-                    className="cursor-pointer hover:bg-base-200 select-none"
+                    className="cursor-pointer hover:bg-base-200 select-none w-24"
                     onClick={() => handleSort('expected_value')}
                   >
                     <div className="flex items-center gap-2">
                       Expected Value {getSortIcon('expected_value')}
                     </div>
                   </th>
-                  <th>Available for Withdrawal</th>
-                  <th>Actions</th>
+                  <th className="w-28">Available for Withdrawal</th>
+                  <th className="w-16">Actions</th>
                 </tr>
               </thead>
               <tbody>
