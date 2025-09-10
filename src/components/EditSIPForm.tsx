@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useState, useEffect } from 'react';
 import { useUpdateSIP } from '../hooks/useSIPs';
-import type { SIP } from '../types';
+import type { SIP, SIPStatus } from '../types';
 
 interface EditSIPFormProps {
   sip: SIP;
@@ -15,6 +15,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
     amount: sip.amount.toString(),
     annual_return: sip.annual_return.toString(),
     lock_period_months: sip.lock_period_months.toString(),
+    status: sip.status,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -27,6 +28,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
       amount: sip.amount.toString(),
       annual_return: sip.annual_return.toString(),
       lock_period_months: sip.lock_period_months.toString(),
+      status: sip.status,
     });
   }, [sip]);
 
@@ -38,6 +40,11 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
@@ -102,6 +109,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
           amount: parseFloat(formData.amount),
           annual_return: parseFloat(formData.annual_return),
           lock_period_months: formData.lock_period_months ? parseInt(formData.lock_period_months) : 0,
+          status: formData.status as SIPStatus,
         },
       });
       
@@ -231,6 +239,26 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
                   <span className="label-text-alt text-error">{errors.lock_period_months}</span>
                 </label>
               )}
+            </div>
+
+            {/* Status Field */}
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Status</span>
+              </label>
+              <select
+                name="status"
+                className="select select-bordered w-full"
+                value={formData.status}
+                onChange={handleSelectChange}
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="completed">Completed</option>
+              </select>
+              <label className="label">
+                <span className="label-text-alt">Set SIP status - inactive SIPs won't be included in portfolio calculations</span>
+              </label>
             </div>
 
             <div className="form-control mt-6">

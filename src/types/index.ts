@@ -1,3 +1,5 @@
+export type SIPStatus = 'active' | 'inactive' | 'completed';
+
 export interface SIP {
   id: string;
   name: string;
@@ -11,6 +13,7 @@ export interface SIP {
   is_paused: boolean;
   lock_period_months: number;
   lock_end_date?: string | null;
+  status: SIPStatus;
 }
 
 export interface Withdrawal {

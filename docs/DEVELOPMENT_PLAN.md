@@ -277,8 +277,8 @@ ALTER TABLE sips ADD COLUMN lock_end_date DATE;
 - [ ] Create validation rules for withdrawal limits
 - [ ] Test locking scenarios with various time periods
 
-### Phase 16: SIP Status Management 📋
-**Status**: 📋 PLANNED
+### Phase 16: SIP Status Management ✅
+**Status**: ✅ COMPLETED
 - [x] Add ability to mark SIP as inactive/active
 - [x] Update database schema with status field
 - [x] Implement status toggle functionality
@@ -539,11 +539,11 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - ✅ **Phase 14**: SIP Detail View & Transaction History (Complete SIP details with installment history)
 - ✅ **Phase 15**: Locking Period & Available Withdrawal (Withdrawal restrictions and availability calculations)
 
-**Current Phase**: Phase 16 - SIP Status Management
-**Next Action**: Add database schema for SIP status field and implement active/inactive functionality
+**Current Phase**: Phase 17 - Enhanced UX & Navigation
+**Next Action**: Create reusable context menu component and implement clickable row navigation
 
 **🚀 Upcoming Enhanced Features:**
-- **Phase 16**: SIP status management (active/inactive/completed)
+- ✅ **Phase 16**: SIP status management (active/inactive/completed) - COMPLETED
 - **Phase 17**: Enhanced UX with context menus and clickable rows
 - **Phase 18**: Page reorganization with dedicated Withdrawals page
 - **Phase 19**: Modern header redesign with responsive navigation
@@ -564,6 +564,7 @@ ALTER TABLE sips ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 - ✅ **SIP Pause/Resume**: User-configurable pause dates with accurate calculations
 - ✅ **SIP Detail Views**: Complete transaction history with installment-wise breakdown
 - ✅ **Locking Period**: Withdrawal restrictions with available vs locked amount calculations
+- ✅ **SIP Status Management**: Active/inactive/completed status with portfolio exclusion
 - ✅ **Production Deployment**: Complete deployment guide with Supabase configuration
 
 **🚀 Core MVP Features (100% Complete):**

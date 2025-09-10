@@ -38,6 +38,13 @@ If you prefer to run migrations individually or need to understand the evolution
 - Creates indexes for locking period queries
 - **Depends on:** Migration 001, 002
 
+### 4. SIP Status Management
+**File:** `004_add_sip_status.sql`
+- Adds `status` column to `sips` table with values: 'active', 'inactive', 'completed'
+- Inactive SIPs are excluded from portfolio calculations
+- Adds check constraint for valid status values
+- **Depends on:** Migration 001
+
 ## How to Run Migrations
 
 ### Option 1: Complete Setup (Recommended)
@@ -47,7 +54,7 @@ If you prefer to run migrations individually or need to understand the evolution
 4. Paste and execute
 
 ### Option 2: Individual Migrations
-1. Run migrations in order: 001 → 002 → 003
+1. Run migrations in order: 001 → 002 → 003 → 004
 2. Copy contents of each file to Supabase SQL Editor
 3. Execute one by one
 

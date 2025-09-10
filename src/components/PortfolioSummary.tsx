@@ -16,7 +16,10 @@ const PortfolioSummary: FC = () => {
     let expectedValue = 0;
 
     if (sips && sips.length > 0) {
-      sips.forEach((sip) => {
+      // Only include active SIPs in portfolio calculations
+      const activeSips = sips.filter(sip => sip.status === 'active');
+      
+      activeSips.forEach((sip) => {
         const installmentsPaid = calculateInstallmentsPaid(sip.start_date, sip.pause_date, sip.is_paused);
         totalInvested += calculateTotalInvested(sip.amount, installmentsPaid);
         expectedValue += calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
@@ -66,7 +69,7 @@ const PortfolioSummary: FC = () => {
           <h2 className="card-title text-xs sm:text-sm font-medium text-base-content/70 leading-tight">Total Invested</h2>
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-info leading-tight mt-1">{formatCurrency(summary.total_invested)}</p>
           <div className="text-xs text-base-content/60 mt-1 leading-tight">
-            {sips?.length || 0} SIP{(sips?.length || 0) !== 1 ? 's' : ''}
+            {sips?.filter(sip => sip.status === 'active').length || 0} active SIP{(sips?.filter(sip => sip.status === 'active').length || 0) !== 1 ? 's' : ''}
           </div>
         </div>
       </div>
