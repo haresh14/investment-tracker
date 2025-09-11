@@ -178,47 +178,47 @@ export const formatPercentage = (value: number): string => {
 };
 
 /**
- * Calculate the lock end date based on start date and lock period
- * @param startDate - SIP start date in ISO format (YYYY-MM-DD)
- * @param lockPeriodMonths - Lock period in months
+ * Calculate the lock end date for a specific installment
+ * @param installmentDate - Installment date in ISO format (YYYY-MM-DD)
+ * @param lockPeriodYears - Lock period in years
  * @returns Lock end date in YYYY-MM-DD format, or null if no lock period
  * @example
- * SIP started Jan 1, 2024 with 12-month lock period
- * calculateLockEndDate('2024-01-01', 12) // Returns '2025-01-01'
+ * Installment made Jan 1, 2024 with 2-year lock period
+ * calculateInstallmentLockEndDate('2024-01-01', 2) // Returns '2026-01-01'
  * 
- * SIP started June 15, 2024 with 6-month lock period
- * calculateLockEndDate('2024-06-15', 6) // Returns '2024-12-15'
+ * Installment made June 15, 2024 with 1.5-year lock period
+ * calculateInstallmentLockEndDate('2024-06-15', 1.5) // Returns '2025-12-15'
  * 
  * No lock period
- * calculateLockEndDate('2024-01-01', 0) // Returns null
+ * calculateInstallmentLockEndDate('2024-01-01', 0) // Returns null
  */
-export const calculateLockEndDate = (startDate: string, lockPeriodMonths: number): string | null => {
-  if (lockPeriodMonths <= 0) return null;
+export const calculateInstallmentLockEndDate = (installmentDate: string, lockPeriodYears: number): string | null => {
+  if (lockPeriodYears <= 0) return null;
   
-  const start = parseISO(startDate);
-  const lockEnd = addMonths(start, lockPeriodMonths);
+  const installment = parseISO(installmentDate);
+  const lockEnd = addMonths(installment, Math.round(lockPeriodYears * 12));
   return lockEnd.toISOString().split('T')[0]; // Return YYYY-MM-DD format
 };
 
 /**
- * Check if the SIP is currently locked
- * @param startDate - SIP start date in ISO format (YYYY-MM-DD)
- * @param lockPeriodMonths - Lock period in months
- * @returns True if SIP is currently locked, false otherwise
+ * Check if a specific installment is currently locked
+ * @param installmentDate - Installment date in ISO format (YYYY-MM-DD)
+ * @param lockPeriodYears - Lock period in years
+ * @returns True if installment is currently locked, false otherwise
  * @example
- * SIP started 6 months ago with 12-month lock period (still locked)
- * isSIPLocked('2024-01-01', 12) // Returns true (if current date is July 2024)
+ * Installment made 6 months ago with 2-year lock period (still locked)
+ * isInstallmentLocked('2024-01-01', 2) // Returns true (if current date is July 2024)
  * 
- * SIP started 18 months ago with 12-month lock period (lock expired)
- * isSIPLocked('2023-01-01', 12) // Returns false (if current date is July 2024)
+ * Installment made 3 years ago with 2-year lock period (lock expired)
+ * isInstallmentLocked('2021-01-01', 2) // Returns false (if current date is July 2024)
  * 
- * SIP with no lock period
- * isSIPLocked('2024-01-01', 0) // Returns false
+ * Installment with no lock period
+ * isInstallmentLocked('2024-01-01', 0) // Returns false
  */
-export const isSIPLocked = (startDate: string, lockPeriodMonths: number): boolean => {
-  if (lockPeriodMonths <= 0) return false;
+export const isInstallmentLocked = (installmentDate: string, lockPeriodYears: number): boolean => {
+  if (lockPeriodYears <= 0) return false;
   
-  const lockEndDate = calculateLockEndDate(startDate, lockPeriodMonths);
+  const lockEndDate = calculateInstallmentLockEndDate(installmentDate, lockPeriodYears);
   if (!lockEndDate) return false;
   
   const today = new Date();
@@ -227,116 +227,110 @@ export const isSIPLocked = (startDate: string, lockPeriodMonths: number): boolea
 };
 
 /**
- * Calculate available withdrawal amount based on locking period
- * Only installments paid before the lock end date are available for withdrawal
+ * Calculate available withdrawal amount based on per-installment locking period
+ * Each installment has its own lock period from the date it was invested
  * @param startDate - SIP start date in ISO format (YYYY-MM-DD)
  * @param amount - Monthly SIP amount
  * @param annualReturn - Annual return percentage (e.g., 15 for 15%)
- * @param lockPeriodMonths - Lock period in months
+ * @param lockPeriodYears - Lock period in years for each installment
  * @param pauseDate - Optional pause date in ISO format
  * @param isPaused - Whether the SIP is currently paused
- * @returns Object with availableAmount, lockedAmount, and totalValue
+ * @returns Object with availableAmount, lockedAmount, totalValue, and installment details
  * @example
- * SIP: ₹5,000/month, 15% return, started 18 months ago, 12-month lock (current: July 2024)
- * calculateAvailableWithdrawal('2023-01-01', 5000, 15, 12, null, false)
- * Returns: { availableAmount: ₹38,239, lockedAmount: ₹32,239, totalValue: ₹70,478 }
+ * SIP: ₹5,000/month, 15% return, started 18 months ago, 1-year lock per installment
+ * calculateAvailableWithdrawal('2023-01-01', 5000, 15, 1, null, false)
+ * Returns: { availableAmount: ₹38,239, lockedAmount: ₹32,239, totalValue: ₹70,478, installments: [...] }
  * 
  * Step-by-step calculation:
- * startDate = '2023-01-01', amount = 5000, annualReturn = 15, lockPeriodMonths = 12
+ * startDate = '2023-01-01', amount = 5000, annualReturn = 15, lockPeriodYears = 1
  * current date = '2024-07-01' (18 months later)
  * 
- * Step 1: Calculate total installments and value
- * totalInstallments = 19 (Jan 2023 to Jul 2024)
- * totalValue = calculateExpectedValue(5000, 15, 19) = ₹108,239 (approx)
+ * For each installment, check if it's past its individual lock period:
+ * Installment 1 (Jan 2023): Lock ends Jan 2024 → Available (past lock period)
+ * Installment 2 (Feb 2023): Lock ends Feb 2024 → Available (past lock period)
+ * Installment 3 (Mar 2023): Lock ends Mar 2024 → Available (past lock period)
+ * Installment 4 (Apr 2023): Lock ends Apr 2024 → Available (past lock period)
+ * Installment 5 (May 2023): Lock ends May 2024 → Available (past lock period)
+ * Installment 6 (Jun 2023): Lock ends Jun 2024 → Available (past lock period)
+ * Installment 7 (Jul 2023): Lock ends Jul 2024 → Available (just unlocked)
+ * Installment 8 (Aug 2023): Lock ends Aug 2024 → Locked (still within lock period)
+ * ... (remaining installments are locked)
  * 
- * Step 2: Calculate lock end date
- * lockEndDate = '2023-01-01' + 12 months = '2024-01-01'
- * 
- * Step 3: Calculate available installments (paid before lock end)
- * availableInstallments = installments from Jan 2023 to Jan 2024 = 13
- * availableValue = calculateExpectedValue(5000, 15, 13) = ₹69,239 (approx)
- * 
- * Step 4: Calculate locked installments (paid after lock end)
- * lockedInstallments = installments from Feb 2024 to Jul 2024 = 6
- * lockedValue = calculateExpectedValue(5000, 15, 6) = ₹31,500 (approx)
- * 
- * Result: { availableAmount: ₹69,239, lockedAmount: ₹31,500, totalValue: ₹100,739 }
- * 
- * SIP with no lock period - everything available
- * calculateAvailableWithdrawal('2024-01-01', 5000, 15, 0, null, false)
- * Returns: { availableAmount: ₹32,239, lockedAmount: ₹0, totalValue: ₹32,239 }
- * 
- * Step-by-step calculation:
- * startDate = '2024-01-01', lockPeriodMonths = 0 (no lock)
- * totalInstallments = 7 (Jan to Jul 2024)
- * totalValue = calculateExpectedValue(5000, 15, 7) = ₹36,239 (approx)
- * Since lockPeriodMonths = 0, everything is available
- * Result: { availableAmount: ₹36,239, lockedAmount: ₹0, totalValue: ₹36,239 }
- * 
- * Paused SIP with lock period
- * calculateAvailableWithdrawal('2024-01-01', 5000, 15, 6, '2024-04-01', true)
- * Returns calculated amounts based on pause date
- * 
- * Step-by-step calculation:
- * startDate = '2024-01-01', pauseDate = '2024-04-01', lockPeriodMonths = 6
- * totalInstallments = 4 (Jan, Feb, Mar, Apr 2024)
- * totalValue = calculateExpectedValue(5000, 15, 4) = ₹20,239 (approx)
- * 
- * lockEndDate = '2024-01-01' + 6 months = '2024-07-01'
- * Since pauseDate (Apr 2024) is before lockEndDate (Jul 2024):
- * All installments are within lock period, so nothing is available yet
- * Result: { availableAmount: ₹0, lockedAmount: ₹20,239, totalValue: ₹20,239 }
+ * Calculate expected value for available vs locked installments
  */
 export const calculateAvailableWithdrawal = (
   startDate: string,
   amount: number,
   annualReturn: number,
-  lockPeriodMonths: number,
+  lockPeriodYears: number,
   pauseDate?: string | null,
   isPaused: boolean = false
-): { availableAmount: number; lockedAmount: number; totalValue: number } => {
+): { 
+  availableAmount: number; 
+  lockedAmount: number; 
+  totalValue: number;
+  installments: Array<{
+    date: string;
+    amount: number;
+    expectedValue: number;
+    isLocked: boolean;
+    lockEndDate: string | null;
+  }>;
+} => {
   const totalInstallments = calculateInstallmentsPaid(startDate, pauseDate, isPaused);
   const totalValue = calculateExpectedValue(amount, annualReturn, totalInstallments);
   
-  // If no lock period, everything is available
-  if (lockPeriodMonths <= 0) {
+  // If no installments or no lock period, everything is available
+  if (totalInstallments === 0 || lockPeriodYears <= 0) {
     return {
       availableAmount: totalValue,
       lockedAmount: 0,
-      totalValue
+      totalValue,
+      installments: []
     };
   }
+
+  const start = parseISO(startDate);
+  const endDate = isPaused && pauseDate ? parseISO(pauseDate) : new Date();
   
-  const lockEndDate = calculateLockEndDate(startDate, lockPeriodMonths);
-  if (!lockEndDate) {
-    return {
-      availableAmount: totalValue,
-      lockedAmount: 0,
-      totalValue
-    };
+  let availableAmount = 0;
+  let lockedAmount = 0;
+  const installments = [];
+
+  // Calculate for each installment
+  for (let i = 0; i < totalInstallments; i++) {
+    const installmentDate = addMonths(start, i);
+    const installmentDateStr = installmentDate.toISOString().split('T')[0];
+    
+    // Calculate expected value for this single installment
+    const monthsHeld = differenceInMonths(endDate, installmentDate);
+    const installmentExpectedValue = monthsHeld > 0 ? 
+      calculateExpectedValue(amount, annualReturn, 1) * Math.pow(1 + annualReturn / 100 / 12, monthsHeld - 1) : 
+      amount;
+    
+    const isLocked = isInstallmentLocked(installmentDateStr, lockPeriodYears);
+    const lockEndDate = calculateInstallmentLockEndDate(installmentDateStr, lockPeriodYears);
+    
+    installments.push({
+      date: installmentDateStr,
+      amount,
+      expectedValue: installmentExpectedValue,
+      isLocked,
+      lockEndDate
+    });
+    
+    if (isLocked) {
+      lockedAmount += installmentExpectedValue;
+    } else {
+      availableAmount += installmentExpectedValue;
+    }
   }
-  
-  const today = new Date();
-  const lockEnd = parseISO(lockEndDate);
-  
-  // If lock period has ended, everything is available
-  if (today >= lockEnd) {
-    return {
-      availableAmount: totalValue,
-      lockedAmount: 0,
-      totalValue
-    };
-  }
-  
-  // Calculate installments paid before lock end date
-  const availableInstallments = calculateInstallmentsPaid(startDate, lockEndDate, false);
-  const availableAmount = calculateExpectedValue(amount, annualReturn, availableInstallments);
-  const lockedAmount = totalValue - availableAmount;
   
   return {
     availableAmount: Math.max(0, availableAmount),
     lockedAmount: Math.max(0, lockedAmount),
-    totalValue
+    totalValue,
+    installments
   };
 };
 

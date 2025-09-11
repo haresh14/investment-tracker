@@ -1,7 +1,7 @@
 -- Investment Tracker - Complete Database Setup
 -- Run this script in Supabase SQL Editor to set up the complete database
 -- This script combines all migrations in the correct order
--- Last updated: Added SIP Status Management (Migration 004)
+-- Last updated: Updated Lock Period to Years (Migration 005)
 
 -- ============================================================================
 -- MIGRATION 001: Initial Setup
@@ -158,6 +158,25 @@ END $$;
 
 -- Add comment for documentation
 COMMENT ON COLUMN sips.status IS 'Current status of the SIP (active, inactive, completed)';
+
+-- ============================================================================
+-- MIGRATION 005: Update Lock Period to Years
+-- ============================================================================
+
+-- Add new column for lock period in years
+ALTER TABLE sips ADD COLUMN IF NOT EXISTS lock_period_years DECIMAL(3,1) DEFAULT 0;
+
+-- Migrate existing data from months to years (divide by 12)
+UPDATE sips SET lock_period_years = COALESCE(lock_period_months, 0) / 12.0;
+
+-- Drop the old months column
+ALTER TABLE sips DROP COLUMN IF EXISTS lock_period_months;
+
+-- Drop the old lock_end_date column as we'll calculate this per installment
+ALTER TABLE sips DROP COLUMN IF EXISTS lock_end_date;
+
+-- Add comment for clarity
+COMMENT ON COLUMN sips.lock_period_years IS 'Lock-in period in years for each installment';
 
 -- ============================================================================
 -- Sample Data (Optional)

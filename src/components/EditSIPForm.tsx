@@ -14,7 +14,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
     start_date: sip.start_date,
     amount: sip.amount.toString(),
     annual_return: sip.annual_return.toString(),
-    lock_period_months: sip.lock_period_months.toString(),
+    lock_period_years: sip.lock_period_years.toString(),
     status: sip.status,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -27,7 +27,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
       start_date: sip.start_date,
       amount: sip.amount.toString(),
       annual_return: sip.annual_return.toString(),
-      lock_period_months: sip.lock_period_months.toString(),
+      lock_period_years: sip.lock_period_years.toString(),
       status: sip.status,
     });
   }, [sip]);
@@ -84,10 +84,10 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
       }
     }
 
-    if (formData.lock_period_months) {
-      const lockPeriod = parseInt(formData.lock_period_months);
-      if (isNaN(lockPeriod) || lockPeriod < 0 || lockPeriod > 120) {
-        newErrors.lock_period_months = 'Lock period must be between 0 and 120 months';
+    if (formData.lock_period_years) {
+      const lockPeriod = parseFloat(formData.lock_period_years);
+      if (isNaN(lockPeriod) || lockPeriod < 0 || lockPeriod > 10) {
+        newErrors.lock_period_years = 'Lock period must be between 0 and 10 years';
       }
     }
 
@@ -108,7 +108,7 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
           start_date: formData.start_date,
           amount: parseFloat(formData.amount),
           annual_return: parseFloat(formData.annual_return),
-          lock_period_months: formData.lock_period_months ? parseInt(formData.lock_period_months) : 0,
+          lock_period_years: formData.lock_period_years ? parseFloat(formData.lock_period_years) : 0,
           status: formData.status as SIPStatus,
         },
       });
@@ -218,25 +218,25 @@ const EditSIPForm: FC<EditSIPFormProps> = ({ sip, onClose }) => {
 
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Lock Period (months)</span>
+                <span className="label-text">Lock Period (Years)</span>
               </label>
               <input
                 type="number"
-                name="lock_period_months"
+                name="lock_period_years"
                 placeholder="0"
-                className={`input input-bordered w-full ${errors.lock_period_months ? 'input-error' : ''}`}
-                value={formData.lock_period_months}
+                className={`input input-bordered w-full ${errors.lock_period_years ? 'input-error' : ''}`}
+                value={formData.lock_period_years}
                 onChange={handleChange}
                 min="0"
-                max="120"
-                step="1"
+                max="10"
+                step="0.5"
               />
               <label className="label">
-                <span className="label-text-alt">Optional: Set a locking period to prevent early withdrawals (0 = no lock)</span>
+                <span className="label-text-alt">Optional: Each installment will be locked for this period (0 = no lock, 0.5 = 6 months)</span>
               </label>
-              {errors.lock_period_months && (
+              {errors.lock_period_years && (
                 <label className="label">
-                  <span className="label-text-alt text-error">{errors.lock_period_months}</span>
+                  <span className="label-text-alt text-error">{errors.lock_period_years}</span>
                 </label>
               )}
             </div>

@@ -11,8 +11,7 @@ export interface SIP {
   updated_at?: string;
   pause_date?: string | null;
   is_paused: boolean;
-  lock_period_months: number;
-  lock_end_date?: string | null;
+  lock_period_years: number;
   status: SIPStatus;
 }
 

@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSIPs, useDeleteSIP, useResumeSIP } from '../hooks/useSIPs';
-import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked, calculateOverallExpectedPercentage } from '../utils/calculations';
+import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, calculateOverallExpectedPercentage } from '../utils/calculations';
 import EditSIPForm from './EditSIPForm';
 import PauseSIPForm from './PauseSIPForm';
 import ContextMenu, { type ContextMenuItem, type ContextMenuRef } from './ContextMenu';
@@ -28,12 +28,11 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
   const overallExpectedPercentage = calculateOverallExpectedPercentage(sip.start_date, sip.annual_return, sip.pause_date, sip.is_paused);
-  const isLocked = isSIPLocked(sip.start_date, sip.lock_period_months);
-  const { availableAmount, lockedAmount } = calculateAvailableWithdrawal(
+  const { availableAmount } = calculateAvailableWithdrawal(
     sip.start_date,
     sip.amount,
     sip.annual_return,
-    sip.lock_period_months,
+    sip.lock_period_years,
     sip.pause_date,
     sip.is_paused
   );
@@ -105,9 +104,6 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                 {sip.is_paused && (
                   <div className="badge badge-warning badge-xs">Paused</div>
                 )}
-                {isLocked && (
-                  <div className="badge badge-info badge-xs">🔒 Locked</div>
-                )}
               </div>
             </div>
           </td>
@@ -123,9 +119,6 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
           <td className="w-28">
             <div className="text-xs">
               <div className="text-success font-medium">{formatCurrency(availableAmount)}</div>
-              {lockedAmount > 0 && (
-                <div className="text-warning text-xs">🔒 {formatCurrency(lockedAmount)} locked</div>
-              )}
             </div>
           </td>
           <td className="w-16">
@@ -181,9 +174,6 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                       {sip.is_paused && (
                         <div className="badge badge-warning badge-xs">Paused</div>
                       )}
-                      {isLocked && (
-                        <div className="badge badge-info badge-xs">🔒 Locked</div>
-                      )}
                     </div>
                     <p className="text-sm text-base-content/60">
                       Started: {new Date(sip.start_date).toLocaleDateString('en-IN')}
@@ -236,9 +226,6 @@ const SIPRow: FC<SIPRowProps> = ({ sip, onEdit, onDelete, onPause, onResume, onV
                   <p className="text-base-content/60">Available</p>
                   <div>
                     <p className="font-medium text-success">{formatCurrency(availableAmount)}</p>
-                    {lockedAmount > 0 && (
-                      <p className="text-xs text-warning">🔒 {formatCurrency(lockedAmount)} locked</p>
-                    )}
                   </div>
                 </div>
                 <div>

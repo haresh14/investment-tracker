@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSIPs } from '../hooks/useSIPs';
 import Header from '../components/Header';
-import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal, isSIPLocked, calculateLockEndDate } from '../utils/calculations';
+import { calculateInstallmentsPaid, calculateExpectedValue, calculateTotalInvested, formatCurrency, calculateAvailableWithdrawal } from '../utils/calculations';
 import { format, addMonths, parseISO } from 'date-fns';
 
 const SIPDetail: FC = () => {
@@ -55,18 +55,16 @@ const SIPDetail: FC = () => {
   const totalInvested = calculateTotalInvested(sip.amount, installmentsPaid);
   const expectedValue = calculateExpectedValue(sip.amount, sip.annual_return, installmentsPaid);
   const currentGain = expectedValue - totalInvested;
-  const isLocked = isSIPLocked(sip.start_date, sip.lock_period_months);
-  const lockEndDate = calculateLockEndDate(sip.start_date, sip.lock_period_months);
-  const { availableAmount, lockedAmount } = calculateAvailableWithdrawal(
+  const { availableAmount, lockedAmount, installments } = calculateAvailableWithdrawal(
     sip.start_date,
     sip.amount,
     sip.annual_return,
-    sip.lock_period_months,
+    sip.lock_period_years,
     sip.pause_date,
     sip.is_paused
   );
 
-  // Generate transaction history
+  // Generate transaction history with lock status
   const generateTransactionHistory = () => {
     const transactions = [];
     const startDate = parseISO(sip.start_date);
@@ -76,10 +74,14 @@ const SIPDetail: FC = () => {
       const installmentDate = addMonths(startDate, i);
       if (installmentDate > endDate) break;
       
+      const installmentDateStr = installmentDate.toISOString().split('T')[0];
       const monthsInvested = i + 1;
       const totalInvestedTillDate = sip.amount * monthsInvested;
       const expectedValueTillDate = calculateExpectedValue(sip.amount, sip.annual_return, monthsInvested);
       const gainTillDate = expectedValueTillDate - totalInvestedTillDate;
+      
+      // Find corresponding installment data for lock status
+      const installmentData = installments.find(inst => inst.date === installmentDateStr);
       
       transactions.push({
         installmentNumber: monthsInvested,
@@ -88,7 +90,9 @@ const SIPDetail: FC = () => {
         totalInvested: totalInvestedTillDate,
         expectedValue: expectedValueTillDate,
         gain: gainTillDate,
-        returnPercentage: totalInvestedTillDate > 0 ? (gainTillDate / totalInvestedTillDate) * 100 : 0
+        returnPercentage: totalInvestedTillDate > 0 ? (gainTillDate / totalInvestedTillDate) * 100 : 0,
+        isLocked: installmentData?.isLocked || false,
+        lockEndDate: installmentData?.lockEndDate || null
       });
     }
     
@@ -117,17 +121,11 @@ const SIPDetail: FC = () => {
                   {sip.is_paused && (
                     <span className="badge badge-warning badge-sm">Paused</span>
                   )}
-                  {isLocked && (
-                    <span className="badge badge-info badge-sm">🔒 Locked</span>
-                  )}
                 </h1>
                 <p className="text-base-content/60 mt-1">
                   Started on {format(parseISO(sip.start_date), 'dd MMM yyyy')}
                   {sip.is_paused && sip.pause_date && (
                     <span> • Paused on {format(parseISO(sip.pause_date), 'dd MMM yyyy')}</span>
-                  )}
-                  {isLocked && lockEndDate && (
-                    <span> • Locked until {format(parseISO(lockEndDate), 'dd MMM yyyy')}</span>
                   )}
                 </p>
               </div>
@@ -187,7 +185,7 @@ const SIPDetail: FC = () => {
                   <div className="stat-title text-sm">Locked Amount</div>
                   <div className="stat-value text-xl text-warning">{formatCurrency(lockedAmount)}</div>
                   <div className="stat-desc">
-                    {lockEndDate && `Until ${format(parseISO(lockEndDate), 'dd MMM yyyy')}`}
+                    Per-installment lock periods apply
                   </div>
                 </div>
               ) : (
@@ -228,6 +226,7 @@ const SIPDetail: FC = () => {
                         <th>Expected Value</th>
                         <th>Gain/Loss</th>
                         <th>Return %</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -243,6 +242,15 @@ const SIPDetail: FC = () => {
                           </td>
                           <td className={transaction.returnPercentage >= 0 ? 'text-success' : 'text-error'}>
                             {transaction.returnPercentage.toFixed(2)}%
+                          </td>
+                          <td>
+                            {transaction.isLocked ? (
+                              <div className="tooltip" data-tip={`Locked until ${transaction.lockEndDate ? format(parseISO(transaction.lockEndDate), 'dd MMM yyyy') : 'N/A'}`}>
+                                <div className="badge badge-warning badge-sm">🔒 Locked</div>
+                              </div>
+                            ) : (
+                              <div className="badge badge-success badge-sm">✓ Available</div>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -287,6 +295,19 @@ const SIPDetail: FC = () => {
                             <div className={`font-medium ${transaction.returnPercentage >= 0 ? 'text-success' : 'text-error'}`}>
                               {transaction.returnPercentage.toFixed(2)}%
                             </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2 pt-2 border-t border-base-300">
+                          <div className="flex justify-between items-center">
+                            <span className="text-base-content/60 text-sm">Withdrawal Status:</span>
+                            {transaction.isLocked ? (
+                              <div className="badge badge-warning badge-sm">
+                                🔒 Locked until {transaction.lockEndDate ? format(parseISO(transaction.lockEndDate), 'dd MMM yyyy') : 'N/A'}
+                              </div>
+                            ) : (
+                              <div className="badge badge-success badge-sm">✓ Available</div>
+                            )}
                           </div>
                         </div>
                       </div>
