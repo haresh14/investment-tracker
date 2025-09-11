@@ -7,3 +7,9 @@
     @apply min-h-screen bg-base-100;
   }
 }
+
+:root {
+  --color-success: #22ab22;
+  --color-info: #378be5;
+  --color-warning: #ecb110;
+}
