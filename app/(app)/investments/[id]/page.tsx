@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { MonthlyTrendChart } from "@/components/dashboard-charts";
 import { DeleteInvestmentButton } from "@/components/delete-investment-button";
 import { InstallmentSyncIndicator } from "@/components/installment-sync-indicator";
+import { InstallmentLedger } from "@/components/installment-ledger";
 import { InvestmentLifecycleActions } from "@/components/investment-lifecycle-actions";
 import { getInvestmentDetail } from "@/lib/data";
 import { formatCurrency, formatDateDisplay, formatPercent } from "@/lib/formatters";
@@ -86,7 +87,7 @@ export default async function InvestmentDetailPage({
         </Card>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
+      <section>
         <Card className="p-6">
           <InstallmentSyncIndicator investmentId={investment.id} />
           <SectionHeading
@@ -94,36 +95,11 @@ export default async function InvestmentDetailPage({
             title="Contribution ledger"
             description="Missing installments are generated lazily when you open this view."
           />
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr className="text-xs uppercase tracking-[0.16em] text-slate-500">
-                  <th>#</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Months invested</th>
-                  <th>Future value</th>
-                  <th>Gain</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summary.visibleInstallments.map((installment) => (
-                  <tr key={installment.id}>
-                    <td>{installment.installment_number}</td>
-                    <td>{formatDateDisplay(installment.installment_date)}</td>
-                    <td>{formatCurrency(Number(installment.amount))}</td>
-                    <td>{installment.months_invested}</td>
-                    <td>{formatCurrency(Number(installment.future_value))}</td>
-                    <td className="text-emerald-600">
-                      {formatCurrency(Number(installment.gain))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <InstallmentLedger installments={summary.visibleInstallments} />
         </Card>
+      </section>
 
+      <section className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
         <Card className="p-6">
           <SectionHeading
             eyebrow="Growth"
@@ -131,8 +107,10 @@ export default async function InvestmentDetailPage({
             description="See how contributions have accumulated over time for this investment."
           />
           <MonthlyTrendChart data={monthlyTrend} />
+        </Card>
 
-          <div className="mt-6 grid gap-3 md:grid-cols-2">
+        <Card className="p-6">
+          <div className="grid gap-3 md:grid-cols-2">
             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
               <p className="text-sm text-slate-500">Phase 2 lock-in</p>
               <p className="mt-2 text-lg font-semibold text-slate-900">
