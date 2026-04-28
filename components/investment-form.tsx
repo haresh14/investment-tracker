@@ -12,6 +12,7 @@ import { getMonthlyRate, getProjectedMonthsForPreview } from "@/lib/calculations
 import type { InvestmentRow } from "@/lib/types";
 import { investmentSchema, type InvestmentFormValues } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 
 export function InvestmentForm({
@@ -186,13 +187,33 @@ export function InvestmentForm({
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">Start date</label>
-          <Input {...register("start_date")} type="date" />
+          <Controller
+            control={control}
+            name="start_date"
+            render={({ field }) => (
+              <DatePicker value={field.value} onChange={field.onChange} placeholder="Pick start date" />
+            )}
+          />
+          {errors.start_date && (
+            <p className="mt-2 text-sm text-error">{errors.start_date.message}</p>
+          )}
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
             End date
           </label>
-          <Input {...register("end_date")} type="date" />
+          <Controller
+            control={control}
+            name="end_date"
+            render={({ field }) => (
+              <DatePicker
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Pick end date"
+                allowClear
+              />
+            )}
+          />
           <p className="mt-2 text-xs text-slate-500">
             Leave blank to keep generating installments until you pause or close the SIP.
           </p>

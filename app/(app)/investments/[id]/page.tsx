@@ -9,7 +9,7 @@ import { DeleteInvestmentButton } from "@/components/delete-investment-button";
 import { InstallmentSyncIndicator } from "@/components/installment-sync-indicator";
 import { InvestmentLifecycleActions } from "@/components/investment-lifecycle-actions";
 import { getInvestmentDetail } from "@/lib/data";
-import { formatCurrency, formatPercent } from "@/lib/formatters";
+import { formatCurrency, formatDateDisplay, formatPercent } from "@/lib/formatters";
 
 export default async function InvestmentDetailPage({
   params
@@ -39,7 +39,7 @@ export default async function InvestmentDetailPage({
             </span>
             {investment.end_date ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                Ends {investment.end_date}
+                Ends {formatDateDisplay(investment.end_date)}
               </span>
             ) : null}
           </div>
@@ -110,7 +110,7 @@ export default async function InvestmentDetailPage({
                 {summary.visibleInstallments.map((installment) => (
                   <tr key={installment.id}>
                     <td>{installment.installment_number}</td>
-                    <td>{installment.installment_date}</td>
+                    <td>{formatDateDisplay(installment.installment_date)}</td>
                     <td>{formatCurrency(Number(installment.amount))}</td>
                     <td>{installment.months_invested}</td>
                     <td>{formatCurrency(Number(installment.future_value))}</td>
