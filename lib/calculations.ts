@@ -83,7 +83,9 @@ function getLifecycleStateOnDate(
 }
 
 export function getVisibleInstallments(installments: InstallmentRow[]) {
-  return installments.filter((installment) => Number(installment.amount) > 0);
+  return installments.filter(
+    (installment) => Number(installment.amount) > 0 && !installment.is_deleted
+  );
 }
 
 export function getProjectedMonthsForPreview(startDate: string, endDate?: string | null) {

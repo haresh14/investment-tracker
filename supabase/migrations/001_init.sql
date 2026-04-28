@@ -26,6 +26,7 @@ create table if not exists public.installments (
   months_invested int not null,
   future_value numeric not null,
   gain numeric not null,
+  is_deleted boolean not null default false,
   created_at timestamptz not null default timezone('utc', now()),
   unique (investment_id, installment_number)
 );

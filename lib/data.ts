@@ -38,7 +38,9 @@ const INSTALLMENT_SELECT = `
   amount,
   months_invested,
   future_value,
-  gain
+  gain,
+  is_deleted,
+  created_at
 `;
 
 export async function getSessionUser() {

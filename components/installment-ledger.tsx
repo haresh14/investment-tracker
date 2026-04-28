@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle, RotateCcw, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { formatCurrency, formatDateDisplay } from "@/lib/formatters";
 import type { InstallmentRow } from "@/lib/types";
@@ -9,27 +12,82 @@ import { Button } from "@/components/ui/button";
 const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 export function InstallmentLedger({
-  installments
+  installments,
+  investmentId,
+  canDeleteInstallments = false
 }: {
   installments: InstallmentRow[];
+  investmentId: string;
+  canDeleteInstallments?: boolean;
 }) {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [includeDeleted, setIncludeDeleted] = useState(false);
+  const [mutatingInstallmentNumber, setMutatingInstallmentNumber] = useState<number | null>(null);
+
+  const filteredInstallments = useMemo(
+    () =>
+      installments.filter((installment) =>
+        Number(installment.amount) > 0 && (includeDeleted || !installment.is_deleted)
+      ),
+    [includeDeleted, installments]
+  );
 
   const sortedInstallments = useMemo(
     () =>
-      [...installments].sort((a, b) => {
+      [...filteredInstallments].sort((a, b) => {
         const dateCompare = b.installment_date.localeCompare(a.installment_date);
         if (dateCompare !== 0) return dateCompare;
         return b.installment_number - a.installment_number;
       }),
-    [installments]
+    [filteredInstallments]
   );
 
   const totalPages = Math.max(1, Math.ceil(sortedInstallments.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const startIndex = (safePage - 1) * pageSize;
   const paginated = sortedInstallments.slice(startIndex, startIndex + pageSize);
+
+  async function updateInstallmentState(installment: InstallmentRow, isDeleted: boolean) {
+    const actionLabel = isDeleted ? "Delete" : "Restore";
+    const confirmed = window.confirm(
+      `${actionLabel} installment #${installment.installment_number} from ${formatDateDisplay(
+        installment.installment_date
+      )}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setMutatingInstallmentNumber(installment.installment_number);
+
+    try {
+      const response = await fetch(
+        `/api/investments/${investmentId}/installments/${installment.installment_number}`,
+        isDeleted
+          ? { method: "DELETE" }
+          : {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ isDeleted: false })
+            }
+      );
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error ?? "Unable to update installment.");
+      }
+
+      toast.success(isDeleted ? "Installment deleted from calculations." : "Installment restored.");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to update installment.");
+    } finally {
+      setMutatingInstallmentNumber(null);
+    }
+  }
 
   return (
     <div>
@@ -40,24 +98,39 @@ export function InstallmentLedger({
           {sortedInstallments.length} installments
         </p>
 
-        <label className="flex items-center gap-2 text-sm text-slate-500">
-          <span>Per page</span>
-          <select
-            value={pageSize}
-            onChange={(event) => {
-              const nextPageSize = Number(event.target.value);
-              setPageSize(nextPageSize);
-              setPage(1);
-            }}
-            className="select select-sm rounded-xl border-slate-200 bg-white text-slate-700"
-          >
-            {PAGE_SIZE_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-slate-500">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm rounded-md border-slate-300"
+              checked={includeDeleted}
+              onChange={(event) => {
+                setIncludeDeleted(event.target.checked);
+                setPage(1);
+              }}
+            />
+            <span>Include deleted</span>
+          </label>
+
+          <label className="flex items-center gap-2 text-sm text-slate-500">
+            <span>Per page</span>
+            <select
+              value={pageSize}
+              onChange={(event) => {
+                const nextPageSize = Number(event.target.value);
+                setPageSize(nextPageSize);
+                setPage(1);
+              }}
+              className="select select-sm rounded-xl border-slate-200 bg-white text-slate-700"
+            >
+              {PAGE_SIZE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -70,19 +143,60 @@ export function InstallmentLedger({
               <th>Months invested</th>
               <th>Future value</th>
               <th>Gain</th>
+              {canDeleteInstallments ? <th className="text-right">Actions</th> : null}
             </tr>
           </thead>
           <tbody>
             {paginated.map((installment) => (
-              <tr key={installment.id}>
+              <tr
+                key={installment.id}
+                className={installment.is_deleted ? "bg-slate-50 text-slate-400" : undefined}
+              >
                 <td>{installment.installment_number}</td>
                 <td>{formatDateDisplay(installment.installment_date)}</td>
                 <td>{formatCurrency(Number(installment.amount))}</td>
                 <td>{installment.months_invested}</td>
                 <td>{formatCurrency(Number(installment.future_value))}</td>
-                <td className="text-emerald-600">
+                <td className={installment.is_deleted ? "text-slate-400" : "text-emerald-600"}>
                   {formatCurrency(Number(installment.gain))}
                 </td>
+                {canDeleteInstallments ? (
+                  <td className="text-right">
+                    {installment.is_deleted ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-slate-500 hover:text-emerald-600"
+                        disabled={mutatingInstallmentNumber === installment.installment_number}
+                        onClick={() => updateInstallmentState(installment, false)}
+                      >
+                        {mutatingInstallmentNumber === installment.installment_number ? (
+                          <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <RotateCcw className="h-4 w-4" />
+                        )}
+                        <span className="hidden sm:inline">Undelete</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="text-slate-500 hover:text-rose-600"
+                        disabled={mutatingInstallmentNumber === installment.installment_number}
+                        onClick={() => updateInstallmentState(installment, true)}
+                      >
+                        {mutatingInstallmentNumber === installment.installment_number ? (
+                          <LoaderCircle className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        <span className="hidden sm:inline">Delete</span>
+                      </Button>
+                    )}
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>

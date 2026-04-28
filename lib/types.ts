@@ -29,6 +29,8 @@ export type InstallmentRow = {
   months_invested: number;
   future_value: number;
   gain: number;
+  is_deleted: boolean;
+  created_at: string;
 };
 
 export type TransactionRow = {
