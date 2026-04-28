@@ -1,6 +1,6 @@
 import { InvestmentForm } from "@/components/investment-form";
 import { SectionHeading } from "@/components/section-heading";
-import { getInvestmentDetail } from "@/lib/data";
+import { getInvestmentForEdit } from "@/lib/data";
 
 export default async function EditInvestmentPage({
   params
@@ -8,7 +8,7 @@ export default async function EditInvestmentPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { investment } = await getInvestmentDetail(id);
+  const investment = await getInvestmentForEdit(id);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 pb-8">

@@ -2,18 +2,44 @@ import { redirect } from "next/navigation";
 
 import {
   getDistributionData,
-  getInvestedVsProjectedChartData,
   getMonthlyTrendData,
-  getProjectedGrowthCurve,
   summarizeInvestment
 } from "@/lib/calculations";
-import { buildDashboardInsights, findBestPerformers, findMilestones } from "@/lib/insights";
+import { findBestPerformers } from "@/lib/insights";
 import { createClient } from "@/lib/supabase/server";
 import type {
   InstallmentRow,
   InvestmentRow,
   InvestmentSummary
 } from "@/lib/types";
+
+const INVESTMENT_BASE_SELECT = `
+  id,
+  user_id,
+  name,
+  source,
+  type,
+  monthly_amount,
+  lump_sum_amount,
+  expected_annual_return,
+  start_date,
+  end_date,
+  sip_day,
+  status,
+  lock_in_months,
+  created_at
+`;
+
+const INSTALLMENT_SELECT = `
+  id,
+  investment_id,
+  installment_number,
+  installment_date,
+  amount,
+  months_invested,
+  future_value,
+  gain
+`;
 
 export async function getSessionUser() {
   const supabase = await createClient();
@@ -37,7 +63,7 @@ export async function getDashboardData() {
 
   const { data: investments, error } = await supabase
     .from("investments")
-    .select("*, installments(*)")
+    .select(`${INVESTMENT_BASE_SELECT}, installments(${INSTALLMENT_SELECT})`)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -80,13 +106,9 @@ export async function getDashboardData() {
     user,
     investments: summaries,
     totals,
-    insights: buildDashboardInsights(summaries),
     topPerformers: findBestPerformers(summaries, 5),
     monthlyTrend: getMonthlyTrendData(allInstallments),
-    growthCurve: getProjectedGrowthCurve(summaries),
-    investedVsProjected: getInvestedVsProjectedChartData(summaries),
-    distribution: getDistributionData(summaries),
-    milestones: findMilestones(summaries)
+    distribution: getDistributionData(summaries)
   };
 }
 
@@ -95,7 +117,7 @@ export async function getInvestmentDetail(id: string) {
   const supabase = await createClient();
   const { data: investment, error } = await supabase
     .from("investments")
-    .select("*, installments(*), transactions(*), lifecycle_events:investment_lifecycle_events(*)")
+    .select(`${INVESTMENT_BASE_SELECT}, installments(${INSTALLMENT_SELECT})`)
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -115,4 +137,22 @@ export async function getInvestmentDetail(id: string) {
     summary,
     monthlyTrend: getMonthlyTrendData(summary.visibleInstallments)
   };
+}
+
+export async function getInvestmentForEdit(id: string) {
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  const { data: investment, error } = await supabase
+    .from("investments")
+    .select(INVESTMENT_BASE_SELECT)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return investment as InvestmentRow;
 }

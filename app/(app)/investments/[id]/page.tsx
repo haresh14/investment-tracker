@@ -53,7 +53,7 @@ export default async function InvestmentDetailPage({
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href={`/investments/${investment.id}/edit`}>
+            <Link href={`/investments/${investment.id}/edit`} prefetch>
               <Edit3 className="h-4 w-4" />
               Edit
             </Link>
