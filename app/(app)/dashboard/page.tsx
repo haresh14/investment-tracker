@@ -1,7 +1,6 @@
 import { AiAssistantCard } from "@/components/ai-assistant-card";
 import { EmptyState } from "@/components/empty-state";
 import { DistributionChart, MonthlyTrendChart } from "@/components/dashboard-charts";
-import { InsightsPanel } from "@/components/insights-panel";
 import { InvestmentList } from "@/components/investment-list";
 import { SectionHeading } from "@/components/section-heading";
 import { StatCard } from "@/components/stat-card";
@@ -54,17 +53,6 @@ export default async function DashboardPage() {
           />
           <InvestmentList investments={data.investments} />
         </div>
-      </section>
-
-      <section>
-        <Card className="p-5">
-          <SectionHeading
-            eyebrow="Smart insights"
-            title="What your portfolio is telling you"
-            description="A quick read on performance, weak spots, and momentum."
-          />
-          <InsightsPanel insights={data.insights} />
-        </Card>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">

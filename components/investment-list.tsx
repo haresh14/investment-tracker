@@ -51,6 +51,7 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
                 <td>
                   <Link
                     href={`/investments/${investment.id}`}
+                    prefetch
                     className="inline-flex items-center gap-2 text-sm font-medium text-brand-600 transition hover:text-brand-700"
                   >
                     View
