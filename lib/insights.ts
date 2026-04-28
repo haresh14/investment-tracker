@@ -1,3 +1,4 @@
+import { formatDateDisplay } from "@/lib/formatters";
 import type { DashboardInsight, InvestmentSummary, Milestone } from "@/lib/types";
 
 export function buildDashboardInsights(investments: InvestmentSummary[]): DashboardInsight[] {
@@ -58,7 +59,9 @@ export function findMilestones(investments: InvestmentSummary[]): Milestone[] {
           investmentId: investment.id,
           investmentName: investment.name,
           target,
-          monthLabel: investment.end_date ? investment.end_date : "current projection"
+          monthLabel: investment.end_date
+            ? formatDateDisplay(investment.end_date)
+            : "current projection"
         }))
     )
     .slice(0, 3);

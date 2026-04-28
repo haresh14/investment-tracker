@@ -56,7 +56,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+      <section>
         <Card className="p-5">
           <SectionHeading
             eyebrow="Smart insights"
@@ -65,6 +65,9 @@ export default async function DashboardPage() {
           />
           <InsightsPanel insights={data.insights} />
         </Card>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <Card className="p-5">
           <SectionHeading
             eyebrow="Allocation"
@@ -73,9 +76,6 @@ export default async function DashboardPage() {
           />
           <DistributionChart data={data.distribution} />
         </Card>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <Card className="p-5">
           <SectionHeading
             eyebrow="Monthly trend"
@@ -84,6 +84,9 @@ export default async function DashboardPage() {
           />
           <MonthlyTrendChart data={data.monthlyTrend} />
         </Card>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <Card className="p-5">
           <SectionHeading
             eyebrow="Top 5"

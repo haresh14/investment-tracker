@@ -1,3 +1,5 @@
+import { format, parseISO } from "date-fns";
+
 export function formatCurrency(value: number, currency = "INR") {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -17,4 +19,12 @@ export function formatCompactCurrency(value: number) {
     notation: "compact",
     maximumFractionDigits: 1
   }).format(Number.isFinite(value) ? value : 0);
+}
+
+export function formatDateDisplay(value: string | null | undefined) {
+  if (!value) {
+    return "-";
+  }
+
+  return format(parseISO(value), "dd-MM-yyyy");
 }
