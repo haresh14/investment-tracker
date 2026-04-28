@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, BarChart3, ShieldCheck } from "lucide-react";
 
@@ -49,7 +50,7 @@ export default async function SignInPage() {
         <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(50,108,255,0.28),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(15,118,110,0.20),_transparent_35%)]" />
           <div className="relative">
-            <div className="mb-8 flex items-center gap-3">
+            <Link href="/" className="mb-8 flex items-center gap-3 rounded-2xl transition hover:opacity-90">
               <div className="rounded-2xl bg-white/10 p-3 text-brand-200">
                 <BarChart3 className="h-6 w-6" />
               </div>
@@ -59,7 +60,7 @@ export default async function SignInPage() {
                 </p>
                 <p className="text-sm text-slate-300">Projection-first personal investing</p>
               </div>
-            </div>
+            </Link>
 
             <h1 className="max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">
               See every SIP and lumpsum plan on one polished dashboard.

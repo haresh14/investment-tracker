@@ -8,11 +8,9 @@ import {
   summarizeInvestment
 } from "@/lib/calculations";
 import { buildDashboardInsights, findBestPerformers, findMilestones } from "@/lib/insights";
-import { ensureInstallmentsUpToDate } from "@/lib/installment-generator";
 import { createClient } from "@/lib/supabase/server";
 import type {
   InstallmentRow,
-  InvestmentLifecycleEventRow,
   InvestmentRow,
   InvestmentSummary
 } from "@/lib/types";
@@ -70,11 +68,13 @@ export async function getDashboardData() {
       totalInvested: 0,
       totalProjectedValue: 0,
       totalProfit: 0,
-      activeCount: 0
+      activeCount: 0,
+      profitPercentage: 0
     }
   );
 
   const allInstallments = summaries.flatMap((investment) => investment.visibleInstallments);
+  totals.profitPercentage = (totals.totalProfit / totals.totalInvested) * 100;
 
   return {
     user,
@@ -104,26 +104,8 @@ export async function getInvestmentDetail(id: string) {
     throw error;
   }
 
-  await ensureInstallmentsUpToDate(
-    supabase,
-    investment as InvestmentRow,
-    ((investment as { lifecycle_events?: InvestmentLifecycleEventRow[] }).lifecycle_events ?? [])
-  );
-
-  const { data: refreshedInvestment, error: refreshedError } = await supabase
-    .from("investments")
-    .select("*, installments(*), transactions(*), lifecycle_events:investment_lifecycle_events(*)")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (refreshedError) {
-    throw refreshedError;
-  }
-
-  const typedInvestment = refreshedInvestment as InvestmentRow & {
+  const typedInvestment = investment as InvestmentRow & {
     installments: InstallmentRow[];
-    lifecycle_events: InvestmentLifecycleEventRow[];
   };
 
   const summary = summarizeInvestment(typedInvestment, typedInvestment.installments ?? []);

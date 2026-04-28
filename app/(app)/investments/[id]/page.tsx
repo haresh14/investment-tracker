@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
 import { MonthlyTrendChart } from "@/components/dashboard-charts";
 import { DeleteInvestmentButton } from "@/components/delete-investment-button";
+import { InstallmentSyncIndicator } from "@/components/installment-sync-indicator";
 import { InvestmentLifecycleActions } from "@/components/investment-lifecycle-actions";
 import { getInvestmentDetail } from "@/lib/data";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
@@ -87,10 +88,11 @@ export default async function InvestmentDetailPage({
 
       <section className="grid gap-6 xl:grid-cols-[1fr_1.1fr]">
         <Card className="p-6">
+          <InstallmentSyncIndicator investmentId={investment.id} />
           <SectionHeading
             eyebrow="Installments"
             title="Contribution ledger"
-            description="Installments are generated lazily up to today, using duplicate-safe upserts."
+            description="Missing installments are generated lazily when you open this view."
           />
           <div className="overflow-x-auto">
             <table className="table">
