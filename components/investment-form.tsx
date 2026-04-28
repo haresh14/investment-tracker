@@ -16,9 +16,11 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 
 export function InvestmentForm({
-  investment
+  investment,
+  cancelHref
 }: {
   investment?: InvestmentRow;
+  cancelHref: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -88,7 +90,7 @@ export function InvestmentForm({
       }
 
       toast.success(investment ? "Investment updated" : "Investment created");
-      router.push("/dashboard");
+      router.push(investment ? `/investments/${investment.id}` : "/dashboard");
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to save investment");
@@ -249,7 +251,10 @@ export function InvestmentForm({
         </p>
       </div>
 
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-end gap-3">
+        <Button type="button" variant="outline" onClick={() => router.push(cancelHref)}>
+          Cancel
+        </Button>
         <Button type="submit" disabled={loading}>
           {loading && <LoaderCircle className="h-4 w-4 animate-spin" />}
           {investment ? "Save changes" : "Create investment"}

@@ -83,9 +83,9 @@ export function DatePicker({
               onChange(format(date, "yyyy-MM-dd"));
               setOpen(false);
             }}
-            captionLayout="dropdown"
             className="text-slate-900"
             classNames={{
+              root: "w-full",
               months: "flex flex-col",
               month: "space-y-3",
               caption: "flex items-center justify-between gap-2 px-1",
@@ -95,11 +95,11 @@ export function DatePicker({
                 "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
               button_next:
                 "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-              table: "w-full border-collapse",
-              head_row: "grid grid-cols-7 gap-1",
+              month_grid: "w-full border-collapse",
+              weekdays: "grid grid-cols-7 gap-1",
+              week: "grid grid-cols-7 gap-1 mt-1",
               head_cell:
                 "h-8 w-9 text-center text-xs font-medium uppercase tracking-[0.08em] text-slate-400",
-              row: "grid grid-cols-7 gap-1 mt-1",
               cell: "h-9 w-9",
               day: "h-9 w-9 rounded-xl text-sm text-slate-700 hover:bg-slate-100",
               selected:

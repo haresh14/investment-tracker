@@ -9,7 +9,7 @@ export default function NewInvestmentPage() {
         title="Add a SIP or lumpsum"
         description="Create a projection-ready investment with installment-level compounding and source attribution."
       />
-      <InvestmentForm />
+      <InvestmentForm cancelHref="/dashboard" />
     </div>
   );
 }

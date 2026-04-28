@@ -89,12 +89,21 @@ export default async function InvestmentDetailPage({
 
       <section>
         <Card className="p-6">
-          <InstallmentSyncIndicator investmentId={investment.id} />
-          <SectionHeading
-            eyebrow="Installments"
-            title="Contribution ledger"
-            description="Missing installments are generated lazily when you open this view."
-          />
+          <div className="mb-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-600">
+              Installments
+            </p>
+            <div className="mt-2 flex flex-row gap-3 md:items-center">
+              <h2 className="text-xl font-semibold text-slate-950">Contribution ledger</h2>
+              <InstallmentSyncIndicator
+                investmentId={investment.id}
+                className="flex-1 mt-0 max-w-[28rem]"
+              />
+            </div>
+            <p className="mt-1 max-w-2xl text-sm text-slate-500">
+              Missing installments are generated lazily when you open this view.
+            </p>
+          </div>
           <InstallmentLedger installments={summary.visibleInstallments} />
         </Card>
       </section>
