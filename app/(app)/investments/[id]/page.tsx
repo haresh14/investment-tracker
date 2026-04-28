@@ -104,7 +104,11 @@ export default async function InvestmentDetailPage({
               Missing installments are generated lazily when you open this view.
             </p>
           </div>
-          <InstallmentLedger installments={summary.visibleInstallments} />
+          <InstallmentLedger
+            installments={investment.installments}
+            investmentId={investment.id}
+            canDeleteInstallments={investment.type === "sip"}
+          />
         </Card>
       </section>
 

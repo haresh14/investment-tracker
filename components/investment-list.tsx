@@ -13,6 +13,7 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
             <tr className="border-slate-100 text-xs uppercase tracking-[0.16em] text-slate-500">
               <th>Investment</th>
               <th>Source</th>
+              <th>Installments</th>
               <th>Invested</th>
               <th>Projected</th>
               <th>Gain</th>
@@ -34,6 +35,11 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
                   <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                     <Landmark className="h-3.5 w-3.5" />
                     {investment.source}
+                  </span>
+                </td>
+                <td>
+                  <span className="text-sm font-medium text-slate-700">
+                    {investment.installmentCount}
                   </span>
                 </td>
                 <td>{formatCurrency(investment.investedAmount)}</td>
