@@ -17,7 +17,7 @@ export default async function EditInvestmentPage({
         title={`Update ${investment.name}`}
         description="Changes to duration, return assumptions, or contribution structure will recalculate generated installments."
       />
-      <InvestmentForm investment={investment} />
+      <InvestmentForm investment={investment} cancelHref={`/investments/${investment.id}`} />
     </div>
   );
 }

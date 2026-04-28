@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 type SyncState = "idle" | "syncing" | "done" | "error";
 
 export function InstallmentSyncIndicator({
-  investmentId
+  investmentId,
+  className
 }: {
   investmentId: string;
+  className?: string;
 }) {
   const router = useRouter();
   const hasStartedRef = useRef(false);
@@ -63,14 +65,37 @@ export function InstallmentSyncIndicator({
     return null;
   }
 
+  const tooltipMessage =
+    state === "syncing"
+      ? "Checking for missing installments..."
+      : state === "done"
+        ? "Installments are up to date."
+        : message;
+
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-2xl border border-brand-100 bg-brand-50/80 px-3 py-2 text-sm text-brand-700">
+    <div
+      className={[
+        "tooltip tooltip-left flex items-center",
+        className ?? ""
+      ].join(" ")}
+      data-tip={tooltipMessage}
+    >
       {state === "syncing" ? (
-        <LoaderCircle className="h-4 w-4 animate-spin" />
+        <span
+          aria-label="Checking installments"
+          className="loading loading-spinner loading-sm text-brand-600"
+        />
+      ) : state === "done" ? (
+        <CheckCircle2
+          aria-label="Installments synced"
+          className="h-4 w-4 text-emerald-600"
+        />
       ) : (
-        <div className="h-2 w-2 rounded-full bg-brand-500" />
+        <AlertCircle
+          aria-label="Installment sync failed"
+          className="h-4 w-4 text-amber-600"
+        />
       )}
-      <span>{message}</span>
     </div>
   );
 }
