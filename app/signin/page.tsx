@@ -7,6 +7,7 @@ import { EmailOtpForm } from "@/components/auth/email-otp-form";
 import { EnvSetupState } from "@/components/env-setup-state";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { getRequestOrigin } from "@/lib/url";
 import { Button } from "@/components/ui/button";
 
 export default async function SignInPage() {
@@ -27,7 +28,7 @@ export default async function SignInPage() {
     "use server";
 
     const supabase = await createClient();
-    const origin = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const origin = await getRequestOrigin();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
