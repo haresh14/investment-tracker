@@ -28,11 +28,11 @@ export function InvestmentForm({
   const defaults = useMemo<InvestmentFormValues>(
     () => ({
       name: investment?.name ?? "",
-      source: investment?.source ?? "Zerodha",
+      source: investment?.source ?? "Cleartax",
       type: investment?.type ?? "sip",
       monthly_amount: investment?.monthly_amount ?? 5000,
       lump_sum_amount: investment?.lump_sum_amount ?? 100000,
-      expected_annual_return: investment?.expected_annual_return ?? 12,
+      expected_annual_return: investment?.expected_annual_return ?? 15,
       start_date: investment?.start_date ?? new Date().toISOString().slice(0, 10),
       end_date: investment?.end_date ?? "",
       sip_day: investment?.sip_day ?? 5,

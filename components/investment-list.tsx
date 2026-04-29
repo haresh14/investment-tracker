@@ -5,6 +5,8 @@ import { formatCurrency, formatPercent } from "@/lib/formatters";
 import type { InvestmentSummary } from "@/lib/types";
 
 export function InvestmentList({ investments }: { investments: InvestmentSummary[] }) {
+  const sortedInvestments = investments.sort((a, b) => a.name.localeCompare(b.name));
+
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
       <div className="overflow-x-auto">
@@ -14,6 +16,7 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
               <th>Investment</th>
               <th>Source</th>
               <th>Installments</th>
+              <th>Expected %</th>
               <th>Invested</th>
               <th>Projected</th>
               <th>Gain</th>
@@ -21,7 +24,7 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
             </tr>
           </thead>
           <tbody>
-            {investments.map((investment) => (
+            {sortedInvestments.map((investment) => (
               <tr key={investment.id} className="hover">
                 <td>
                   <div>
@@ -38,8 +41,18 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
                   </span>
                 </td>
                 <td>
+                  <div>
+                    <p className="font-medium text-emerald-600">
+                      {investment.installmentCount}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {formatCurrency(investment.monthlyAmount)}
+                    </p>
+                  </div>
+                </td>
+                <td>
                   <span className="text-sm font-medium text-slate-700">
-                    {investment.installmentCount}
+                    {formatPercent(investment.expected_annual_return)}
                   </span>
                 </td>
                 <td>{formatCurrency(investment.investedAmount)}</td>
@@ -47,10 +60,10 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
                 <td>
                   <div>
                     <p className="font-medium text-emerald-600">
-                      {formatCurrency(investment.profit)}
+                      {formatPercent(investment.gainPercent)}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {formatPercent(investment.gainPercent)}
+                      {formatCurrency(investment.profit)}
                     </p>
                   </div>
                 </td>

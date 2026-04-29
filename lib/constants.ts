@@ -1,4 +1,5 @@
 export const SOURCE_OPTIONS = [
+  "Cleartax",
   "Zerodha",
   "Groww",
   "Scriptbox",

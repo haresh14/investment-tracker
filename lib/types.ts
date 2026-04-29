@@ -55,6 +55,7 @@ export type InvestmentWithInstallments = InvestmentRow & {
 };
 
 export type InvestmentSummary = InvestmentRow & {
+  monthlyAmount: number;
   investedAmount: number;
   projectedValue: number;
   profit: number;
