@@ -192,6 +192,7 @@ export function summarizeInvestment(
 
   return {
     ...investment,
+    monthlyAmount: Number(investment.monthly_amount ?? 0),
     investedAmount,
     projectedValue,
     profit,
