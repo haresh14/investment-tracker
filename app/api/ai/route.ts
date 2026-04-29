@@ -69,6 +69,7 @@ export async function POST(request: Request) {
             id: investment.id,
             name: investment.name,
             source: investment.source,
+            account: investment.account,
             type: investment.type,
             investedAmount: investment.investedAmount,
             projectedValue: investment.projectedValue,

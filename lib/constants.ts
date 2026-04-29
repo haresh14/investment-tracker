@@ -1,6 +1,6 @@
 export const SOURCE_OPTIONS = [
-  "Cleartax",
   "Zerodha",
+  "Cleartax",
   "Groww",
   "Scriptbox",
   "Coin",
@@ -8,6 +8,12 @@ export const SOURCE_OPTIONS = [
   "Paytm Money",
   "ET Money",
   "Other"
+] as const;
+
+export const ACCOUNT_OPTIONS = [
+  "Self",
+  "Dharti",
+  "HUF",
 ] as const;
 
 export const AI_SUGGESTIONS = [

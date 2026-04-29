@@ -8,6 +8,8 @@ import {
 import { findBestPerformers } from "@/lib/insights";
 import { createClient } from "@/lib/supabase/server";
 import type {
+  DashboardFilterOptions,
+  DashboardFilterState,
   InstallmentRow,
   InvestmentRow,
   InvestmentSummary
@@ -18,6 +20,7 @@ const INVESTMENT_BASE_SELECT = `
   user_id,
   name,
   source,
+  account,
   type,
   monthly_amount,
   lump_sum_amount,
@@ -59,7 +62,33 @@ export async function requireUser() {
   return user;
 }
 
-export async function getDashboardData() {
+function matchesDashboardFilters(
+  investment: InvestmentSummary,
+  filters: DashboardFilterState
+) {
+  if (filters.source && investment.source !== filters.source) {
+    return false;
+  }
+
+  if (filters.account && investment.account !== filters.account) {
+    return false;
+  }
+
+  return true;
+}
+
+function getDashboardFilterOptions(investments: InvestmentSummary[]): DashboardFilterOptions {
+  const sourceOptions = Array.from(new Set(investments.map((investment) => investment.source))).sort(
+    (a, b) => a.localeCompare(b)
+  );
+  const accountOptions = Array.from(
+    new Set(investments.map((investment) => investment.account))
+  ).sort((a, b) => a.localeCompare(b));
+
+  return { sourceOptions, accountOptions };
+}
+
+export async function getDashboardData(filters: DashboardFilterState = {}) {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -83,8 +112,12 @@ export async function getDashboardData() {
   const summaries: InvestmentSummary[] = typedInvestments.map((investment) =>
     summarizeInvestment(investment, investment.installments)
   );
+  const filterOptions = getDashboardFilterOptions(summaries);
+  const filteredSummaries = summaries.filter((investment) =>
+    matchesDashboardFilters(investment, filters)
+  );
 
-  const totals = summaries.reduce(
+  const totals = filteredSummaries.reduce(
     (acc, summary) => {
       acc.totalInvested += summary.investedAmount;
       acc.totalProjectedValue += summary.projectedValue;
@@ -101,16 +134,20 @@ export async function getDashboardData() {
     }
   );
 
-  const allInstallments = summaries.flatMap((investment) => investment.visibleInstallments);
-  totals.profitPercentage = (totals.totalProfit / totals.totalInvested) * 100;
+  const allInstallments = filteredSummaries.flatMap((investment) => investment.visibleInstallments);
+  totals.profitPercentage =
+    totals.totalInvested > 0 ? (totals.totalProfit / totals.totalInvested) * 100 : 0;
 
   return {
     user,
-    investments: summaries,
+    investments: filteredSummaries,
     totals,
-    topPerformers: findBestPerformers(summaries, 5),
+    topPerformers: findBestPerformers(filteredSummaries, 5),
     monthlyTrend: getMonthlyTrendData(allInstallments),
-    distribution: getDistributionData(summaries)
+    distribution: getDistributionData(filteredSummaries),
+    filterOptions,
+    filters,
+    totalInvestmentCount: summaries.length
   };
 }
 

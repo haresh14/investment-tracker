@@ -5,6 +5,7 @@ create table if not exists public.investments (
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null,
   source text not null,
+  account text not null default 'Self',
   type text not null check (type in ('sip', 'lumpsum')),
   monthly_amount numeric,
   lump_sum_amount numeric,
