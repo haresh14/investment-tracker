@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 
-import { SOURCE_OPTIONS } from "@/lib/constants";
+import { ACCOUNT_OPTIONS, SOURCE_OPTIONS } from "@/lib/constants";
 import { getMonthlyRate, getProjectedMonthsForPreview } from "@/lib/calculations";
 import type { InvestmentRow } from "@/lib/types";
 import { investmentSchema, type InvestmentFormValues } from "@/lib/validations";
@@ -28,7 +28,8 @@ export function InvestmentForm({
   const defaults = useMemo<InvestmentFormValues>(
     () => ({
       name: investment?.name ?? "",
-      source: investment?.source ?? "Cleartax",
+      source: investment?.source ?? "Zerodha",
+      account: investment?.account ?? "Self",
       type: investment?.type ?? "sip",
       monthly_amount: investment?.monthly_amount ?? 5000,
       lump_sum_amount: investment?.lump_sum_amount ?? 100000,
@@ -68,6 +69,17 @@ export function InvestmentForm({
           return sum + monthlyAmount * Math.pow(1 + monthlyRate, monthsInvested);
         }, 0)
       : lumpSumAmount * Math.pow(1 + monthlyRate, projectedMonths);
+  const accountOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          [investment?.account, ...ACCOUNT_OPTIONS].filter(
+            (value): value is string => Boolean(value)
+          )
+        )
+      ),
+    [investment?.account]
+  );
 
   async function onSubmit(values: InvestmentFormValues) {
     setLoading(true);
@@ -126,6 +138,48 @@ export function InvestmentForm({
               </select>
             )}
           />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">Account</label>
+          <Controller
+            control={control}
+            name="account"
+            render={({ field }) => {
+              const customValue =
+                field.value && !accountOptions.includes(field.value) ? field.value : "";
+              const selectValue = customValue ? "__custom__" : field.value;
+
+              return (
+                <div className="space-y-2">
+                  <select
+                    value={selectValue}
+                    onChange={(event) => {
+                      const nextValue = event.target.value;
+                      field.onChange(nextValue === "__custom__" ? customValue : nextValue);
+                    }}
+                    className="select h-11 w-full rounded-xl border-slate-200 bg-white text-sm"
+                  >
+                    {accountOptions.map((account) => (
+                      <option key={account} value={account}>
+                        {account}
+                      </option>
+                    ))}
+                    <option value="__custom__">Custom account</option>
+                  </select>
+
+                  {selectValue === "__custom__" ? (
+                    <Input
+                      value={customValue}
+                      onChange={(event) => field.onChange(event.target.value)}
+                      placeholder="Enter account name"
+                    />
+                  ) : null}
+                </div>
+              );
+            }}
+          />
+          {errors.account && <p className="mt-2 text-sm text-error">{errors.account.message}</p>}
         </div>
 
         <div>

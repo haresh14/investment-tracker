@@ -1,3 +1,4 @@
+import { DashboardFilters } from "@/components/dashboard-filters";
 import { AiAssistantCard } from "@/components/ai-assistant-card";
 import { EmptyState } from "@/components/empty-state";
 import { DistributionChart, MonthlyTrendChart } from "@/components/dashboard-charts";
@@ -8,15 +9,55 @@ import { Card } from "@/components/ui/card";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
 import { getDashboardData } from "@/lib/data";
 
-export default async function DashboardPage() {
-  const data = await getDashboardData();
+function getFirstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
 
-  if (!data.investments.length) {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const data = await getDashboardData({
+    source: getFirstSearchParam(resolvedSearchParams.source),
+    account: getFirstSearchParam(resolvedSearchParams.account)
+  });
+
+  if (!data.totalInvestmentCount) {
     return <EmptyState />;
   }
 
   return (
     <div className="space-y-6 pb-8">
+      <DashboardFilters
+        filters={[
+          {
+            key: "account",
+            label: "Account",
+            placeholder: "All accounts",
+            options: data.filterOptions.accountOptions
+          },
+          {
+            key: "source",
+            label: "Source",
+            placeholder: "All sources",
+            options: data.filterOptions.sourceOptions
+          }
+        ]}
+      />
+
+      {!data.investments.length ? (
+        <Card className="p-8 text-center">
+          <p className="text-base font-medium text-slate-900">No investments match these filters.</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Try a different account or source selection to bring the dashboard back into view.
+          </p>
+        </Card>
+      ) : null}
+
+      {data.investments.length ? (
+        <>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total invested"
@@ -107,6 +148,8 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </section>
+        </>
+      ) : null}
 
       <AiAssistantCard />
     </div>

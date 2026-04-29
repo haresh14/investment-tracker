@@ -30,7 +30,7 @@ export function InvestmentList({ investments }: { investments: InvestmentSummary
                   <div>
                     <p className="font-medium text-slate-900">{investment.name}</p>
                     <p className="text-xs text-slate-500">
-                      {investment.type.toUpperCase()} • {investment.status}
+                      {investment.account} • {investment.type.toUpperCase()} • {investment.status}
                     </p>
                   </div>
                 </td>

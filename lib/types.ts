@@ -8,6 +8,7 @@ export type InvestmentRow = {
   user_id: string;
   name: string;
   source: string;
+  account: string;
   type: InvestmentType;
   monthly_amount: number | null;
   lump_sum_amount: number | null;
@@ -71,6 +72,17 @@ export type DashboardTotals = {
   totalProjectedValue: number;
   totalProfit: number;
   activeCount: number;
+  profitPercentage: number;
+};
+
+export type DashboardFilterState = {
+  source?: string;
+  account?: string;
+};
+
+export type DashboardFilterOptions = {
+  sourceOptions: string[];
+  accountOptions: string[];
 };
 
 export type DashboardInsight = {

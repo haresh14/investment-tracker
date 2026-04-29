@@ -30,6 +30,9 @@ export default async function InvestmentDetailPage({
           <h1 className="mt-2 text-3xl font-semibold text-slate-950">{investment.name}</h1>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+              {investment.account}
+            </span>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
               {investment.source}
             </span>
             <span className="rounded-full bg-brand-50 px-3 py-1 text-sm text-brand-700">

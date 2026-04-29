@@ -4,6 +4,7 @@ export const investmentSchema = z
   .object({
     name: z.string().min(2, "Name is required"),
     source: z.string().min(2, "Source is required"),
+    account: z.string().min(2, "Account is required"),
     type: z.enum(["sip", "lumpsum"]),
     monthly_amount: z.coerce.number().nonnegative().optional().nullable(),
     lump_sum_amount: z.coerce.number().nonnegative().optional().nullable(),
